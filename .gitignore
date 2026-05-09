@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+._*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# CodeBuddy 内部
+.codebuddy/

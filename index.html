@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RIVI ZHANG // INCOMING BROADCAST</title>
+<!--
+  ============================================================
+  RIVI ZHANG · NEW PLAYER PROFILE
+  腾讯新闻小游戏板块 · 新人自我介绍
+  视觉参考：gt-mechanik.com（米白 + 信号橙 + 砖红 + 深墨）
+  ------------------------------------------------------------
+  修改指南：
+  - 配色：见 :root 变量（共用旧变量名，映射到新配色）
+  - 文案：直接搜索中文修改
+  - 雷达图数据：见 JS radarData
+  - 首页照片：搜索 HERO_PHOTO，把 .photo-frame 内容换成 <img>
+  - 板块详情图片：搜索 MODAL_DATA，把对应 imgs 数组换成真实图片路径
+  ============================================================
+-->
+<style>
+/* ===== 调色板（白底 + 亮粉 + 亮绿 + 荧光黄，参考 GT Mechanik 官网样张） ===== */
+:root{
+  /* 新命名 */
+  --bg:#ffffff;            /* 主背景：纯白 */
+  --bg-paper:#ffffff;      /* 面板底：白 */
+  --bg-soft:#f4f4ef;       /* 次级背景：极淡米 */
+  --ink:#0e2b1a;           /* 主文字：深绿墨（对应样图里的深绿线） */
+  --ink-2:#184f2d;         /* 次级绿 */
+  --ink-3:#5a7260;         /* 弱文字 */
+  --ink-4:#9fb0a3;         /* 极弱 */
+  --pink:#ff2bb4;          /* 亮粉（点缀主色） */
+  --pink-2:#ff66c9;        /* 浅粉 */
+  --green:#2eb75a;         /* 亮绿 */
+  --green-soft:#cfe8c7;    /* 浅薄荷绿（卡片底） */
+  --yellow:#e8f04a;        /* 荧光黄（圆块） */
+  --amber:#ff2bb4;         /* 兼容：原 amber → 亮粉 */
+  --brick:#2eb75a;         /* 兼容：原 brick → 亮绿 */
+  --olive:#2eb75a;         /* 兼容 */
+  --ink-blue:#0e2b1a;      /* 兼容：墨蓝 → 深绿墨 */
+
+  /* 兼容旧变量名 */
+  --bg-0:#ffffff;
+  --bg-1:#ffffff;
+  --bg-2:#f4f4ef;
+  --line:rgba(14,43,26,.25);
+  --line-2:#0e2b1a;
+  --text:#0e2b1a;
+  --text-dim:#5a7260;
+  --text-muted:#9fb0a3;
+  --neon:#ff2bb4;
+  --cyan:#2eb75a;
+  --red:#ff2bb4;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Courier New",monospace;
+  --sans:"Helvetica Neue","Helvetica","Arial Black",Impact,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  --display:"Helvetica Neue","Arial Black",Impact,-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg-0);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.6;overflow-x:hidden;position:relative;-webkit-font-smoothing:antialiased}
+/* 背景细线网格（淡粉 + 淡绿双色，极轻） */
+body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(46,183,90,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(46,183,90,.08) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:1}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;opacity:0}
+
+/* ===== 顶部状态栏（深绿底 + 荧光黄/亮粉点缀） ===== */
+.statusbar{position:fixed;top:0;left:0;right:0;height:32px;background:var(--ink);color:#fff;display:flex;align-items:center;padding:0 20px;font-size:11px;letter-spacing:.14em;z-index:100}
+.statusbar .seg{display:flex;align-items:center;gap:8px;padding:0 14px;border-right:1px solid rgba(255,255,255,.18);height:100%}
+.statusbar .seg:last-child{border-right:none}
+.statusbar .seg.first{padding-left:0}
+.statusbar .dot{width:6px;height:6px;background:var(--yellow);box-shadow:0 0 8px var(--yellow);animation:blink 1.6s infinite}
+.statusbar .signal{color:var(--yellow);margin-left:auto;border-right:none}
+.statusbar .signal-bars{display:inline-flex;gap:2px;margin-right:6px;align-items:end}
+.statusbar .signal-bars span{display:inline-block;width:3px;background:var(--yellow)}
+.statusbar .signal-bars span:nth-child(1){height:4px}
+.statusbar .signal-bars span:nth-child(2){height:7px}
+.statusbar .signal-bars span:nth-child(3){height:10px}
+.statusbar .signal-bars span:nth-child(4){height:13px}
+.statusbar .clock{color:var(--pink-2)}
+@keyframes blink{0%,60%,100%{opacity:1}70%,90%{opacity:.25}}
+
+/* 跑马灯（亮粉底白字） */
+.marquee{position:fixed;top:32px;left:0;right:0;height:24px;background:var(--pink);color:#fff;overflow:hidden;z-index:99;border-bottom:1px solid var(--ink)}
+.marquee-track{display:flex;align-items:center;height:100%;white-space:nowrap;animation:scroll 36s linear infinite;font-size:10px;letter-spacing:.3em;font-weight:800}
+.marquee-track span{padding:0 24px;display:inline-flex;align-items:center;gap:14px}
+.marquee-track span::after{content:"●";color:var(--yellow);opacity:1}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.wrap{max-width:1280px;margin:0 auto;padding:80px 28px 80px;position:relative;z-index:5}
+
+/* ===== 通用模块头 / 面板 ===== */
+section{margin:90px 0;position:relative;opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease}
+section.in{opacity:1;transform:translateY(0)}
+.mod-head{display:flex;align-items:center;gap:14px;margin-bottom:28px;border-bottom:2px solid var(--ink);padding-bottom:14px;flex-wrap:wrap}
+.mod-num{font-size:11px;color:#fff;background:var(--pink);padding:4px 10px;letter-spacing:.1em;font-weight:800}
+.mod-led{width:10px;height:10px;background:var(--pink);border-radius:50%;animation:blink 2s infinite;flex-shrink:0}
+.mod-led.cyan{background:var(--green)}
+.mod-led.yellow{background:var(--yellow)}
+.mod-led.pink{background:var(--pink)}
+.mod-title-en{font-size:clamp(22px,3vw,32px);letter-spacing:-.01em;font-weight:900;color:var(--ink);text-transform:uppercase;font-family:var(--display);line-height:1}
+.mod-title-cn{font-size:12px;color:var(--ink-2);letter-spacing:.3em;margin-left:6px;font-weight:600}
+.mod-meta{margin-left:auto;font-size:10px;color:var(--ink-3);letter-spacing:.2em}
+.mod-detail-btn{font-size:10px;letter-spacing:.2em;padding:6px 12px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;font-family:var(--mono);transition:all .2s;display:inline-flex;align-items:center;gap:6px;font-weight:800;border-radius:999px}
+.mod-detail-btn:hover{background:var(--pink);border-color:var(--pink);color:#fff}
+
+/* 面板：白底 + 绿色细描边，角落粉色装饰 */
+.panel{background:#fff;border:1.5px solid var(--ink);padding:22px;position:relative;transition:transform .25s ease,box-shadow .25s ease}
+.panel::before,.panel::after{content:"";position:absolute;width:10px;height:10px;background:var(--pink);border-radius:50%}
+.panel::before{top:-5px;left:-5px}
+.panel::after{bottom:-5px;right:-5px}
+.panel.hoverable:hover{transform:translateY(-3px);box-shadow:6px 6px 0 var(--green)}
+.panel.clickable{cursor:pointer}
+.panel.clickable:hover{transform:translateY(-3px);box-shadow:6px 6px 0 var(--pink);border-color:var(--pink)}
+.panel.clickable:hover::before,.panel.clickable:hover::after{background:var(--green)}
+.panel .view-detail{position:absolute;top:14px;right:14px;font-size:9px;letter-spacing:.2em;color:var(--ink);padding:4px 9px;border:1.5px solid var(--ink);background:#fff;transition:all .2s;font-weight:800;pointer-events:none;border-radius:999px}
+.panel.clickable:hover .view-detail{color:#fff;background:var(--pink);border-color:var(--pink)}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{font-size:10px;letter-spacing:.08em;padding:4px 10px;border:1.5px solid var(--ink);color:var(--ink);background:#fff;white-space:nowrap;font-weight:700;border-radius:999px}
+.chip.neon{color:#fff;background:var(--pink);border-color:var(--pink)}
+.chip.cyan{color:#fff;background:var(--green);border-color:var(--green)}
+.chip.yellow{color:var(--ink);background:var(--yellow);border-color:var(--ink)}
+.chip.pink{color:#fff;background:var(--pink);border-color:var(--pink)}
+.chip.outline{color:var(--pink);border-color:var(--pink);background:#fff}
+
+/* ===== HERO ===== */
+.hero{min-height:calc(100vh - 80px);display:flex;flex-direction:column;justify-content:center;padding-top:20px;opacity:1;transform:none;margin-top:0}
+.hero-top{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--ink-2);letter-spacing:.2em;margin-bottom:18px;flex-wrap:wrap;gap:8px;font-weight:700}
+.hero-top .left{display:flex;align-items:center;gap:10px}
+.hero-top .right{color:var(--pink);font-weight:800}
+.loading-line{display:flex;align-items:center;gap:14px;font-size:12px;color:var(--ink-2);margin-bottom:24px;letter-spacing:.15em;flex-wrap:wrap;font-weight:600}
+.loading-bar{flex:1;max-width:280px;min-width:160px;height:10px;background:#fff;border:1.5px solid var(--ink);position:relative;overflow:hidden;border-radius:999px}
+.loading-bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--pink);animation:loadFill 2.4s ease-out forwards}
+@keyframes loadFill{to{width:100%}}
+
+/* 超大紧凑标题（参考 GT Mechanik "MCNK" 感觉） */
+.hero-title{font-size:clamp(80px,18vw,260px);font-weight:900;letter-spacing:-.05em;line-height:.82;font-family:var(--display);color:var(--pink);text-transform:uppercase}
+.hero-title .typed{display:inline-block;border-right:6px solid var(--green);animation:cursor 1s steps(2) infinite;padding-right:8px}
+@keyframes cursor{50%{border-color:transparent}}
+.hero-sub{font-size:clamp(18px,2.6vw,34px);color:var(--ink);letter-spacing:.18em;margin-top:14px;font-weight:900;font-family:var(--display);text-transform:uppercase}
+.hero-sub .dot{display:inline-block;width:14px;height:14px;background:var(--green);border-radius:50%;margin:0 10px;vertical-align:middle}
+.hero-tag{margin-top:8px;font-size:11px;color:var(--ink-2);letter-spacing:.3em;font-weight:600}
+
+/* HERO 主网格 */
+.hero-main{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;margin-top:48px}
+@media(max-width:980px){.hero-main{grid-template-columns:1fr}}
+
+/* HERO_PHOTO 主照片大卡 - 替换真实照片：把 .photo-frame 内部内容换成 <img> */
+.photo-card{padding:0;overflow:hidden;display:flex;flex-direction:column;background:var(--green-soft);border-color:var(--ink)}
+.photo-frame{width:100%;aspect-ratio:4/5;background:var(--green-soft);position:relative;display:flex;align-items:center;justify-content:center;border-bottom:1.5px solid var(--ink);overflow:hidden}
+.photo-frame > img{width:100%;height:100%;object-fit:contain;display:block;position:relative;z-index:1;padding:12px}
+/* 装饰：淡色放射线 */
+.photo-frame::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(46,183,90,.12) 0 1px,transparent 1px 24px);pointer-events:none}
+.photo-frame .ph-mark{position:absolute;top:14px;left:14px;font-size:10px;letter-spacing:.25em;color:#fff;background:var(--pink);padding:4px 10px;font-weight:800;z-index:2;border-radius:999px}
+.photo-frame .ph-id{position:absolute;bottom:14px;right:14px;font-size:10px;letter-spacing:.2em;color:var(--ink);background:#fff;padding:4px 10px;border:1.5px solid var(--ink);font-weight:700;z-index:2;border-radius:999px}
+.photo-frame .ph-tick{position:absolute;bottom:14px;left:14px;font-size:10px;letter-spacing:.2em;color:var(--ink);background:var(--yellow);padding:4px 10px;font-weight:800;z-index:2;border-radius:999px;border:1.5px solid var(--ink)}
+.photo-frame .ph-icon{width:150px;height:150px;border:2px solid var(--ink);background:#fff;display:grid;place-items:center;font-size:60px;color:var(--pink);position:relative;border-radius:50%;z-index:2}
+.photo-frame .ph-icon::before,.photo-frame .ph-icon::after{content:"";position:absolute;width:18px;height:18px;background:var(--pink);border-radius:50%}
+.photo-frame .ph-icon::before{top:-5px;left:50%;transform:translateX(-50%)}
+.photo-frame .ph-icon::after{bottom:-5px;left:50%;transform:translateX(-50%);background:var(--green)}
+.photo-frame .ph-hint{position:absolute;bottom:58px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--ink-2);letter-spacing:.2em;text-align:center;width:80%;z-index:2;font-weight:600}
+.photo-meta{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--ink);letter-spacing:.2em;flex-wrap:wrap;gap:8px;background:#fff;font-weight:700;border-top:1.5px solid var(--ink)}
+.photo-meta .acc{color:var(--pink);font-weight:800}
+
+/* HERO 右侧信息列 */
+.hero-info{display:flex;flex-direction:column;gap:18px}
+.id-panel,.intro-panel{padding:22px 24px}
+.id-panel h4,.intro-panel h4{font-size:11px;color:var(--ink);letter-spacing:.25em;margin-bottom:14px;display:flex;align-items:center;gap:8px;border-bottom:1.5px solid var(--ink);padding-bottom:10px;font-weight:800}
+.id-panel h4::before{content:"";width:10px;height:10px;background:var(--pink);border-radius:50%;animation:blink 1.4s infinite}
+.intro-panel h4::before{content:"";width:10px;height:10px;background:var(--green);border-radius:50%;animation:blink 1.6s infinite}
+.id-row{display:grid;grid-template-columns:130px 1fr;gap:10px;padding:8px 0;border-bottom:1px dashed rgba(14,43,26,.2);font-size:12px}
+.id-row:last-child{border-bottom:none}
+.id-row .k{color:var(--ink-2);letter-spacing:.1em;font-weight:600}
+.id-row .v{color:var(--ink);font-weight:600}
+.id-row .v.hl{color:var(--pink);font-weight:800}
+.id-row .v.cy{color:var(--green);font-weight:800}
+.id-row .v.yl{color:var(--ink);background:var(--yellow);padding:1px 8px;font-weight:800;display:inline-block}
+.intro-panel{display:flex;flex-direction:column}
+.intro-panel p{font-size:13px;line-height:1.85;color:var(--ink)}
+.intro-panel .org{margin-top:12px;font-size:11px;color:var(--ink);line-height:1.8;background:var(--green-soft);padding:12px 14px;border-left:4px solid var(--green);font-weight:600}
+
+.press-start{margin-top:48px;display:inline-flex;align-items:center;gap:14px;padding:18px 32px;background:var(--pink);color:#fff;border:2px solid var(--ink);font-family:var(--mono);font-size:13px;font-weight:900;letter-spacing:.3em;cursor:pointer;position:relative;align-self:flex-start;transition:all .25s;border-radius:999px}
+.press-start::before,.press-start::after{content:none}
+.press-start:hover{background:var(--green);color:#fff;box-shadow:6px 6px 0 var(--ink)}
+.press-start .arrow{display:inline-block;animation:bounceX 1.4s infinite}
+@keyframes bounceX{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+
+/* ===== Profile ===== */
+.profile-grid{display:grid;grid-template-columns:1fr 320px;gap:22px}
+@media(max-width:880px){.profile-grid{grid-template-columns:1fr}}
+.profile-text p{margin-bottom:14px;font-size:13px;line-height:1.85;color:var(--ink)}
+.profile-text p .hl{color:var(--pink);font-weight:800}
+.attr-panel{padding:20px 22px}
+.attr-panel h5,.stat-list h5{font-size:11px;color:var(--ink);letter-spacing:.25em;margin-bottom:14px;border-bottom:1.5px solid var(--ink);padding-bottom:10px;font-weight:800}
+.attr-row,.stat-row{margin-bottom:12px}
+.attr-row .lbl,.stat-row .lbl{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;letter-spacing:.1em;font-weight:700}
+.attr-row .lbl .name,.stat-row .lbl .name{color:var(--ink)}
+.attr-row .lbl .val{color:var(--pink);font-weight:900}
+.attr-bar{height:10px;background:#fff;border:1.5px solid var(--ink);position:relative;overflow:hidden;border-radius:999px}
+.attr-bar i{display:block;height:100%;background:var(--pink);width:0;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+
+/* ===== Learning Path / Maps ===== */
+.timeline,.maps-grid,.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:880px){.timeline,.maps-grid,.proj-grid{grid-template-columns:1fr}}
+.lv-card,.map-card,.proj-card{padding:24px;padding-top:42px}
+.lv-tag{display:inline-block;font-size:10px;background:var(--green);color:#fff;padding:5px 12px;letter-spacing:.2em;margin-bottom:14px;font-weight:800;border-radius:999px}
+.lv-card h3,.map-card h3,.proj-card h3{font-size:22px;letter-spacing:-.01em;margin-bottom:4px;font-family:var(--display);font-weight:900;color:var(--ink);text-transform:uppercase}
+.lv-card .sch,.map-card .role{font-size:11px;color:var(--green);letter-spacing:.15em;margin-bottom:14px;font-weight:800}
+.lv-card p,.map-card p,.proj-card p{font-size:12.5px;line-height:1.85;margin-bottom:8px;color:var(--ink)}
+.lv-card .quote,.map-card .quote{font-size:12px;color:var(--ink-2);border-left:4px solid var(--pink);padding-left:12px;margin:10px 0;font-style:italic;background:rgba(255,43,180,.05);padding:10px 12px}
+.map-card .quote{border-left-color:var(--green);background:rgba(46,183,90,.06)}
+.map-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;gap:10px}
+.map-head .tag{font-size:10px;letter-spacing:.2em;color:#fff;background:var(--pink);padding:4px 10px;flex-shrink:0;font-weight:800;border-radius:999px}
+.proj-card h3 .en{color:var(--pink);margin-left:8px;font-size:12px;letter-spacing:.2em}
+.proj-card .kw{font-size:11px;color:var(--green);letter-spacing:.1em;margin-bottom:12px;font-weight:700}
+/* 项目卡封面图（可选） */
+.card-cover{margin:-24px -24px 16px -24px;border-bottom:1.5px solid var(--ink);background:var(--green-soft);aspect-ratio:16/9;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.card-cover img{width:100%;height:100%;object-fit:contain;padding:8px;display:block}
+
+/* ===== 早期插画占位 ===== */
+.archive-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+@media(max-width:720px){.archive-grid{grid-template-columns:1fr 1fr}}
+.placeholder{aspect-ratio:1/1;background:var(--green-soft);border:1.5px solid var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ink);font-size:10px;letter-spacing:.2em;position:relative;transition:all .25s ease;cursor:pointer;font-weight:700;overflow:hidden}
+.placeholder::before,.placeholder::after{content:"";position:absolute;width:12px;height:12px;background:var(--pink);border-radius:50%;z-index:2}
+.placeholder::before{top:-6px;left:-6px}
+.placeholder::after{bottom:-6px;right:-6px}
+.placeholder:hover{transform:translateY(-2px);box-shadow:4px 4px 0 var(--pink)}
+.placeholder:hover::before,.placeholder:hover::after{background:var(--green)}
+.placeholder > img{width:100%;height:100%;object-fit:contain;display:block;padding:10px;background:var(--green-soft)}
+.placeholder .icon{width:40px;height:40px;border:2px solid var(--ink);margin-bottom:10px;display:grid;place-items:center;font-size:18px;color:var(--pink);background:#fff;border-radius:50%}
+
+/* ===== Status / Radar / Tree ===== */
+.status-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:22px}
+@media(max-width:880px){.status-grid{grid-template-columns:1fr}}
+.radar-wrap{padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.radar-wrap canvas{width:100%;max-width:480px;aspect-ratio:1/1;height:auto;display:block}
+.radar-meta{margin-top:14px;font-size:10px;color:var(--ink-2);letter-spacing:.2em;font-weight:600}
+.stat-list{padding:22px}
+.stat-bar{height:12px;background:#fff;border:1.5px solid var(--ink);position:relative;border-radius:999px;overflow:hidden}
+.stat-bar i{display:block;height:100%;width:0;background:var(--pink);transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.stat-row .lbl .name{color:var(--ink);font-weight:700}
+.stat-row .lbl .val{color:var(--pink);font-weight:900}
+.stat-row.neon .stat-bar i{background:var(--pink)}
+.stat-row.neon .lbl .val{color:var(--pink)}
+.stat-row.pink .stat-bar i{background:var(--green)}
+.stat-row.pink .lbl .val{color:var(--green)}
+.stat-row.yellow .stat-bar i{background:var(--yellow)}
+.stat-row.yellow .lbl .val{color:var(--ink);background:var(--yellow);padding:1px 8px}
+
+.skilltree{padding:24px;margin-top:22px}
+.tree-wrap{position:relative;width:100%;overflow-x:auto}
+.tree-svg-box{position:relative;min-width:780px;height:260px}
+.tree-svg-box svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.node{position:absolute;transform:translate(-50%,-50%);width:130px;text-align:center;cursor:default}
+.node .dot{width:20px;height:20px;background:#fff;border:2px solid var(--ink);margin:0 auto 10px;transition:all .25s;border-radius:50%}
+.node:hover .dot{background:var(--pink);border-color:var(--pink);box-shadow:0 0 14px rgba(255,43,180,.5)}
+.node .label{font-size:11px;letter-spacing:.05em;color:var(--ink);margin-bottom:3px;font-weight:800}
+.node .stars{font-size:9px;color:var(--green);letter-spacing:.1em;font-weight:700}
+.node.root .dot{border-color:var(--pink);background:var(--pink);width:24px;height:24px}
+.node.root .label{color:var(--pink)}
+.node.secret .dot{border-color:var(--yellow);background:var(--yellow)}
+.node.secret .label{color:var(--ink)}
+.node.secret .stars{color:var(--pink)}
+
+/* ===== Inventory ===== */
+.inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:880px){.inv-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.inv-grid{grid-template-columns:repeat(2,1fr)}}
+.inv-slot{border:1.5px solid var(--ink);background:#fff;padding:16px 10px;text-align:center;position:relative;transition:all .25s ease;cursor:pointer;border-radius:16px}
+.inv-slot::before,.inv-slot::after{content:"";position:absolute;width:8px;height:8px;background:var(--pink);border-radius:50%}
+.inv-slot::before{top:-4px;left:-4px}
+.inv-slot::after{bottom:-4px;right:-4px}
+.inv-slot .ico{font-size:28px;margin-bottom:6px;display:block}
+.inv-slot .name{font-size:11px;color:var(--ink);letter-spacing:.1em;font-weight:800}
+.inv-slot .lvl{font-size:9px;color:var(--green);margin-top:2px;letter-spacing:.15em;font-weight:700}
+.inv-slot:hover{transform:translateY(-3px);box-shadow:4px 4px 0 var(--green);background:var(--yellow)}
+.inv-slot:hover::before,.inv-slot:hover::after{background:var(--green)}
+.inv-slot.hidden-skill{border-color:var(--pink);background:rgba(255,43,180,.06)}
+.inv-slot.hidden-skill .name{color:var(--pink)}
+.inv-slot.hidden-skill .lvl{color:var(--pink)}
+.inv-note{margin-top:18px;padding:14px 18px;border:1.5px solid var(--green);font-size:12px;color:var(--ink);line-height:1.85;background:var(--green-soft);border-radius:12px}
+.inv-note .acc{color:var(--pink);font-weight:800}
+
+/* ===== Invite ===== */
+.invite{text-align:center;padding:70px 20px;border:2px solid var(--ink);background:#fff;position:relative;border-radius:24px}
+.invite::before,.invite::after{content:"";position:absolute;width:18px;height:18px;background:var(--pink);border-radius:50%}
+.invite::before{top:-10px;left:-10px}
+.invite::after{bottom:-10px;right:-10px;background:var(--green)}
+.invite .badge{display:inline-block;font-size:10px;background:var(--pink);color:#fff;padding:6px 14px;letter-spacing:.3em;margin-bottom:22px;font-weight:800;border-radius:999px}
+.invite h2{font-family:var(--display);font-size:clamp(40px,8vw,96px);font-weight:900;letter-spacing:-.03em;line-height:.95;text-transform:uppercase;margin-bottom:18px;color:var(--ink)}
+.invite h2 .acc{color:var(--pink)}
+.invite p{max-width:600px;margin:0 auto 14px;font-size:13px;line-height:1.9;color:var(--ink)}
+.invite .chips{justify-content:center;margin-top:22px}
+
+.footer{margin-top:80px;padding:30px 0;border-top:2px solid var(--ink);display:flex;justify-content:space-between;font-size:10px;color:var(--ink);letter-spacing:.25em;flex-wrap:wrap;gap:10px;font-weight:700}
+.footer .end{color:var(--pink);font-weight:800}
+
+/* ===== MODAL 详情弹层 ===== */
+.modal-mask{position:fixed;inset:0;background:rgba(14,43,26,.75);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:60px 20px;overflow-y:auto;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.modal-mask.show{display:flex;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;border:2px solid var(--ink);width:100%;max-width:1000px;position:relative;box-shadow:10px 10px 0 var(--pink);animation:slideUp .3s cubic-bezier(.2,.8,.2,1);border-radius:16px;overflow:hidden}
+.modal::before,.modal::after{content:"";position:absolute;width:16px;height:16px;background:var(--green);border-radius:50%;z-index:5}
+.modal::before{top:-8px;left:-8px}
+.modal::after{bottom:-8px;right:-8px;background:var(--pink)}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;background:var(--pink);color:#fff;font-size:11px;letter-spacing:.2em;flex-wrap:wrap;gap:8px}
+.modal-head .left{display:flex;align-items:center;gap:10px;font-weight:800}
+.modal-head .led{width:10px;height:10px;background:var(--yellow);border-radius:50%;animation:blink 1.6s infinite}
+.modal-close{background:#fff;border:1.5px solid #fff;color:var(--pink);padding:5px 14px;font-family:var(--mono);font-size:11px;cursor:pointer;letter-spacing:.2em;transition:all .2s;font-weight:800;border-radius:999px}
+.modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.modal-body{padding:30px 32px;max-height:75vh;overflow-y:auto}
+.modal-title{font-family:var(--display);font-size:clamp(32px,5vw,56px);font-weight:900;letter-spacing:-.03em;line-height:.95;margin-bottom:6px;text-transform:uppercase;color:var(--pink)}
+.modal-subtitle{font-size:12px;color:var(--green);letter-spacing:.2em;margin-bottom:20px;font-weight:800;border-bottom:1.5px solid var(--ink);padding-bottom:14px}
+.modal-section{margin:20px 0}
+.modal-section h4{font-size:11px;color:var(--ink);letter-spacing:.25em;margin-bottom:10px;display:flex;align-items:center;gap:8px;font-weight:800}
+.modal-section h4::before{content:"";width:10px;height:10px;background:var(--pink);border-radius:50%}
+.modal-section p{font-size:13px;line-height:1.85;color:var(--ink);margin-bottom:10px}
+.modal-section p .hl{color:var(--pink);font-weight:800}
+.modal-section ul{list-style:none;padding:0;margin:10px 0}
+.modal-section ul li{padding:8px 0 8px 22px;position:relative;font-size:12.5px;color:var(--ink);border-bottom:1px dashed rgba(14,43,26,.15)}
+.modal-section ul li::before{content:"";position:absolute;left:0;top:13px;width:8px;height:8px;background:var(--green);border-radius:50%}
+.modal-gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px}
+@media(max-width:600px){.modal-gallery{grid-template-columns:1fr}}
+.modal-gallery .ph{aspect-ratio:4/3;background:var(--green-soft);border:1.5px solid var(--ink);position:relative;display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:10px;letter-spacing:.25em;text-align:center;padding:20px;border-radius:12px;overflow:hidden}
+.modal-gallery .ph::before,.modal-gallery .ph::after{content:"";position:absolute;width:10px;height:10px;background:var(--pink);border-radius:50%;z-index:2}
+.modal-gallery .ph::before{top:-5px;left:-5px}
+.modal-gallery .ph::after{bottom:-5px;right:-5px;background:var(--green)}
+.modal-gallery .ph .lbl{display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700}
+.modal-gallery .ph .lbl .ic{font-size:32px;color:var(--pink)}
+.modal-gallery .ph .lbl small{color:var(--ink-3);font-size:9px}
+.modal-gallery .ph img{width:100%;height:100%;object-fit:contain;display:block;padding:8px;background:var(--green-soft)}
+.modal-foot{padding:16px 22px;border-top:1.5px solid var(--ink);background:var(--green-soft);font-size:10px;color:var(--ink);letter-spacing:.2em;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-weight:700}
+
+::-webkit-scrollbar{width:10px;height:10px;background:#fff}
+::-webkit-scrollbar-thumb{background:var(--pink);border:2px solid #fff;border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:var(--green)}
+
+@media(max-width:720px){
+  .statusbar{font-size:9px;padding:0 12px}
+  .statusbar .seg{padding:0 8px;gap:6px}
+  .statusbar .seg.hide-mobile{display:none}
+  .wrap{padding:80px 16px 60px}
+  section{margin:60px 0}
+  .mod-title-en{font-size:20px}
+  .mod-title-cn{display:none}
+  .modal-body{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部状态栏 ===== -->
+<div class="statusbar">
+  <div class="seg first"><span class="dot"></span><span>RIVI-ZHANG</span></div>
+  <div class="seg">TENCENT NEWS</div>
+  <div class="seg hide-mobile">MINI-GAME DESIGN</div>
+  <div class="seg hide-mobile clock" id="clock">--:--:--</div>
+  <div class="seg signal">
+    <span class="signal-bars"><span></span><span></span><span></span><span></span></span>
+    SIGNAL 100%
+  </div>
+</div>
+
+<!-- ===== 顶部跑马灯（INCOMING BROADCAST） ===== -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span>INCOMING BROADCAST FROM RIVI ZHANG</span>
+    <span>UNIT ID: RIVI-001 / FUJIAN-SM</span>
+    <span>SIGNAL CLARITY 100%</span>
+    <span>CHANNEL OPEN · STABLE · RECEIVING</span>
+    <span>NEW PLAYER JOINED THE TEAM</span>
+    <span>INCOMING BROADCAST FROM RIVI ZHANG</span>
+    <span>UNIT ID: RIVI-001 / FUJIAN-SM</span>
+    <span>SIGNAL CLARITY 100%</span>
+    <span>CHANNEL OPEN · STABLE · RECEIVING</span>
+    <span>NEW PLAYER JOINED THE TEAM</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ===== 00 START SCREEN ===== -->
+  <section class="hero in" id="hero">
+    <div class="hero-top">
+      <div class="left"><span class="mod-led"></span><span>SYS://START_SCREEN · TRANSMISSION 0001</span></div>
+      <div class="right">[ NEW PLAYER JOINED ]</div>
+    </div>
+
+    <div class="loading-line">
+      <span>[ 角色载入中 ]</span>
+      <div class="loading-bar"><i></i></div>
+      <span>100%</span>
+    </div>
+
+    <h1 class="hero-title"><span class="typed" id="heroTyped"></span></h1>
+    <div class="hero-sub">NEW PLAYER<span class="dot"></span>JOINED</div>
+    <div class="hero-tag">// 当前地图：腾讯新闻设计团队 · 好奇心驱动型新人</div>
+
+    <div class="hero-main">
+      <!-- HERO_PHOTO 主照片大卡 · 已替换为真实图片 自我介绍配图01.jpg -->
+      <div class="panel photo-card hoverable">
+        <div class="photo-frame">
+          <img src="images/自我介绍配图01.jpg" alt="RIVI ZHANG 自我介绍主照片">
+          <span class="ph-mark">PHOTO_001</span>
+          <span class="ph-id">UNIT_ID / RIVI-001</span>
+          <span class="ph-tick">● REC · SIGNAL OK</span>
+        </div>
+        <div class="photo-meta">
+          <span>FILE / hero_portrait.jpg</span>
+          <span class="acc">RIVI ZHANG · 2026</span>
+          <span>LOC / FUJIAN-SM</span>
+        </div>
+      </div>
+
+      <!-- 右侧信息列：ID 面板 + 信号广播面板 -->
+      <div class="hero-info">
+        <div class="panel id-panel hoverable">
+          <h4>UNIT_ID // 角色信息</h4>
+          <div class="id-row"><span class="k">ID</span><span class="v hl">张睿 / ZHANG RUI</span></div>
+          <div class="id-row"><span class="k">NICKNAME</span><span class="v">睿睿 / rivi</span></div>
+          <div class="id-row"><span class="k">BIRTHPLACE</span><span class="v cy">福建三明 · FUJIAN</span></div>
+          <div class="id-row"><span class="k">BIRTHDAY</span><span class="v">2001.06.25</span></div>
+          <div class="id-row"><span class="k">MBTI</span><span class="v yl">ENFJ</span></div>
+          <div class="id-row"><span class="k">CONSTELLATION</span><span class="v">巨蟹座 · CANCER</span></div>
+          <div class="id-row"><span class="k">STATUS</span><span class="v hl">准备开始新的冒险！</span></div>
+        </div>
+
+        <div class="panel intro-panel hoverable">
+          <h4>BROADCAST // 信号广播</h4>
+          <p>一个兴趣很多、什么都想试试，希望在这里认真工作也认真交朋友的新人。</p>
+          <div class="org">// 所在中心 / 小组<br>PCG平台与内容事业群 → 腾讯新闻 →<br>新闻平台业务部 → 设计中心</div>
+          <div class="chips" style="margin-top:12px;">
+            <span class="chip neon">NEW PLAYER JOINED</span>
+            <span class="chip outline">好奇心驱动型新人</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="press-start" onclick="document.getElementById('mod-01').scrollIntoView({behavior:'smooth'})">
+      <span>PRESS START</span><span class="arrow">▶</span>
+    </button>
+  </section>
+
+  <!-- ===== 01 CHARACTER PROFILE ===== -->
+  <section id="mod-01">
+    <div class="mod-head">
+      <span class="mod-num">01</span><span class="mod-led"></span>
+      <span class="mod-title-en">Character Profile</span>
+      <span class="mod-title-cn">角色档案</span>
+      <button class="mod-detail-btn" data-modal="profile">VIEW DETAIL ▶</button>
+    </div>
+    <div class="profile-grid">
+      <div class="panel profile-text clickable" data-modal="profile">
+        <span class="view-detail">[ CLICK ]</span>
+        <p>Hello 大家好，我是 <span class="hl">张睿</span>，也可以叫我 <span class="hl">睿睿</span> 或者 <span class="hl">rivi</span>。</p>
+        <p>我目前是 <strong>清华美院科普信息设计</strong> 方向的研二学生，本科是 <strong>江南大学视觉传达设计</strong>。之前的学习、项目和实习经历主要围绕 视觉设计、用户体验、AIGC、交互设计 和产品体验展开。</p>
+        <p>平时喜欢唱歌，也很喜欢去 KTV，在学校有一个阿卡贝拉乐团。运动也喜欢，虽然很多项目都还属于"半吊子但很快乐"的阶段，但我很享受尝试新东西、新挑战的过程。除此之外，我对东西方玄学也挺感兴趣，有一些涉猎。</p>
+        <p>希望之后能在这里和大家认真完成工作之余，也慢慢变成好朋友，一起度过一段愉快又有收获的时光～</p>
+      </div>
+      <div class="panel attr-panel hoverable">
+        <h5>// ATTRIBUTES_INIT</h5>
+        <div class="attr-row" data-val="86"><div class="lbl"><span class="name">亲和力 AFFINITY</span><span class="val">+86</span></div><div class="attr-bar"><i></i></div></div>
+        <div class="attr-row" data-val="96"><div class="lbl"><span class="name">好奇心 CURIOSITY</span><span class="val">+96</span></div><div class="attr-bar"><i></i></div></div>
+        <div class="attr-row" data-val="95"><div class="lbl"><span class="name">新鲜事物探索欲</span><span class="val">+95</span></div><div class="attr-bar"><i></i></div></div>
+        <div class="attr-row" data-val="98"><div class="lbl"><span class="name">KTV 活跃度</span><span class="val">+98</span></div><div class="attr-bar"><i></i></div></div>
+        <div class="chips">
+          <span class="chip neon">ENFJ</span>
+          <span class="chip">设计 · AIGC · 体验</span>
+          <span class="chip outline">阿卡贝拉乐团</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 02 LEARNING PATH ===== -->
+  <section id="mod-02">
+    <div class="mod-head">
+      <span class="mod-num">02</span><span class="mod-led cyan"></span>
+      <span class="mod-title-en">Learning Path</span>
+      <span class="mod-title-cn">成长路线</span>
+      <span class="mod-meta">// EDU_TIMELINE</span>
+    </div>
+    <div class="timeline">
+      <div class="panel lv-card clickable" data-modal="learn-1">
+        <span class="view-detail">[ CLICK ]</span>
+        <span class="lv-tag">Lv.01 / UNDERGRAD</span>
+        <h3>江南大学设计学院</h3>
+        <div class="sch">视觉传达设计 / 本科</div>
+        <p>主要学习视觉传达设计，从 UI、信息可视化、数字媒体、品牌设计等方向开始打基础。</p>
+        <div class="quote">那时候更关注的是：怎么把信息表达得清楚、好看、有记忆点。</div>
+        <div class="chips"><span class="chip neon">技能解锁：视觉表达</span><span class="chip">信息整理 +20</span></div>
+      </div>
+      <div class="panel lv-card clickable" data-modal="learn-2">
+        <span class="view-detail">[ CLICK ]</span>
+        <span class="lv-tag">Lv.02 / GRAD</span>
+        <h3>清华大学美术学院</h3>
+        <div class="sch">科普信息设计 / 硕士在读</div>
+        <p>开始更关注 信息、体验和技术 之间的关系。感兴趣方向：沉浸式体验设计、用户体验设计、AI 辅助设计、艺术疗愈、多模态交互、互联网产品设计。</p>
+        <div class="quote">从"怎么把东西做得好看"，慢慢升级到"怎么让信息更好理解、让体验更有共鸣"。</div>
+        <div class="chips"><span class="chip cyan">视觉 → 信息 → 体验</span><span class="chip outline">→ AI 共创</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 03 PREVIOUS MAPS ===== -->
+  <section id="mod-03">
+    <div class="mod-head">
+      <span class="mod-num">03</span><span class="mod-led yellow"></span>
+      <span class="mod-title-en">Previous Maps</span>
+      <span class="mod-title-cn">已探索地图</span>
+      <span class="mod-meta">// EXPLORED_DUNGEONS</span>
+    </div>
+    <div class="maps-grid">
+      <div class="panel map-card clickable" data-modal="map-1">
+        <span class="view-detail">[ CLICK ]</span>
+        <div class="map-head"><h3>字节跳动 · 抖音政务运营中台</h3><span class="tag">MAP_01</span></div>
+        <div class="role">ROLE / 视觉设计实习生</div>
+        <p>参与抖音政务和文旅相关活动的视觉系统与页面体验设计：活动主视觉、H5 页面、运营视觉、页面信息层级优化等。</p>
+        <p>使用 Midjourney、Stable Diffusion、即梦 等 AIGC 工具辅助创意生成和视觉扩展。</p>
+        <div class="quote">第一次直观感受互联网业务节奏：需求会变，时间会紧，但设计表达要稳定、清楚、有效。</div>
+        <div class="chips"><span class="chip pink">抖音政务与文旅副本</span><span class="chip">快速迭代</span><span class="chip">视觉系统</span></div>
+      </div>
+      <div class="panel map-card clickable" data-modal="map-2">
+        <span class="view-detail">[ CLICK ]</span>
+        <div class="map-head"><h3>阿里巴巴 · 通义实验室</h3><span class="tag">MAP_02</span></div>
+        <div class="role">ROLE / AI 视觉美学实习生</div>
+        <p>参与 通义万相 2.6 → 2.7 版本的体验与数据体系优化。负责 SFT 多维美学体系、千人千面、调色盘、图像编辑功能、模型美学与用户体验评测。</p>
+        <p>和算法同学紧密合作，了解了一些 AI 生图模型底层的原理与逻辑。</p>
+        <div class="quote">AI 不只是生成工具，也可以参与到产品体验、审美判断和用户表达方式的设计里。</div>
+        <div class="chips"><span class="chip pink">AIGC 图像生成副本</span><span class="chip">System Prompt</span><span class="chip">AI 美学</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 04 PROJECT GALLERY ===== -->
+  <section id="mod-04">
+    <div class="mod-head">
+      <span class="mod-num">04</span><span class="mod-led pink"></span>
+      <span class="mod-title-en">Project Gallery</span>
+      <span class="mod-title-cn">作品简介</span>
+      <span class="mod-meta">// WORKS.ARCHIVE</span>
+    </div>
+    <div class="proj-grid">
+      <div class="panel proj-card clickable" data-modal="proj-1">
+        <div class="card-cover"><img src="images/情绪合成器1.png" alt="情绪合成器 封面"></div>
+        <span class="view-detail">[ CLICK ]</span>
+        <h3>《情绪合成器》<span class="en">EMOTION SYNTHESIZER</span></h3>
+        <div class="kw">面部表情识别 / 情绪可视化 / AI 生成 / 艺术疗愈</div>
+        <p>基于面部表情识别的情绪交互装置。捕捉观众表情变化，将抽象的情绪状态转化为实时生成的视觉画面，让"看不见的情绪"变成可以被感知和观看的体验。尝试用 AI 视觉生成提供一个更轻松、温和的情绪观察入口。</p>
+        <div class="chips"><span class="chip neon">情绪识别</span><span class="chip">AI 生成</span><span class="chip">艺术疗愈</span></div>
+      </div>
+      <div class="panel proj-card clickable" data-modal="proj-2">
+        <div class="card-cover"><img src="images/递归星辰1.png" alt="递归星辰 封面"></div>
+        <span class="view-detail">[ CLICK ]</span>
+        <h3>《递归星辰》<span class="en">RECURSIVE STARS</span></h3>
+        <div class="kw">脑电信号 / 生成视觉 / 沉浸交互 / 人机共创</div>
+        <p>基于脑电信号的沉浸式交互装置。观众的脑波状态会影响星空视觉的生成与变化，让专注、放松等状态转化为不断生长的数字星辰。每一次参与，都会点亮一片不同的星空。</p>
+        <div class="chips"><span class="chip cyan">脑电交互</span><span class="chip">生成星空</span><span class="chip">沉浸装置</span></div>
+      </div>
+    </div>
+
+    <!-- 早期插画存档 -->
+    <div class="panel clickable" data-modal="proj-3" style="margin-top:22px;">
+      <span class="view-detail">[ CLICK ]</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+        <h3 style="font-size:16px;letter-spacing:.05em;font-family:var(--sans);font-weight:800;color:var(--ink);">早期存档 · ILLUSTRATION ARCHIVE</h3>
+        <small style="color:var(--ink-3);font-size:10px;letter-spacing:.2em;">// 考研时期手绘存档</small>
+      </div>
+      <p style="font-size:12.5px;line-height:1.85;color:var(--ink-2)">一些考研时期的插画作品，作为视觉补充。它们更像是早期设计训练里的"手绘存档"，记录了从视觉表达开始积累的一段时间。</p>
+      <div class="archive-grid">
+        <div class="placeholder"><img src="images/手绘1.png" alt="插画 01"></div>
+        <div class="placeholder"><img src="images/手绘2.png" alt="插画 02"></div>
+        <div class="placeholder"><img src="images/手绘3.png" alt="插画 03"></div>
+      </div>
+      <div class="chips" style="margin-top:18px;"><span class="chip">早期存档</span><span class="chip">插画练习</span><span class="chip neon">视觉表达 +1</span></div>
+    </div>
+  </section>
+
+  <!-- ===== 05 STATUS PANEL ===== -->
+  <section id="mod-05">
+    <div class="mod-head">
+      <span class="mod-num">05</span><span class="mod-led"></span>
+      <span class="mod-title-en">Status Panel</span>
+      <span class="mod-title-cn">技能雷达图</span>
+      <span class="mod-meta">// STAT.RADAR_v2.6</span>
+    </div>
+    <div class="status-grid">
+      <div class="panel radar-wrap hoverable">
+        <canvas id="radar" width="500" height="500" aria-label="技能雷达图"></canvas>
+        <div class="radar-meta">// 数值仅供娱乐，后续版本持续更新中…</div>
+      </div>
+      <div class="panel stat-list hoverable">
+        <h5>// SKILL.STAT</h5>
+        <div class="stat-row neon" data-val="90"><div class="lbl"><span class="name">视觉表现力 Visual</span><span class="val">90</span></div><div class="stat-bar"><i></i></div></div>
+        <div class="stat-row" data-val="87"><div class="lbl"><span class="name">交互体验力 UX</span><span class="val">87</span></div><div class="stat-bar"><i></i></div></div>
+        <div class="stat-row pink" data-val="85"><div class="lbl"><span class="name">AIGC 熟练度</span><span class="val">85</span></div><div class="stat-bar"><i></i></div></div>
+        <div class="stat-row neon" data-val="90"><div class="lbl"><span class="name">学习速度 Learn</span><span class="val">90</span></div><div class="stat-bar"><i></i></div></div>
+        <div class="stat-row" data-val="86"><div class="lbl"><span class="name">团队亲和力 Team</span><span class="val">86</span></div><div class="stat-bar"><i></i></div></div>
+        <div class="stat-row yellow" data-val="96"><div class="lbl"><span class="name">好奇心 Curiosity</span><span class="val">96</span></div><div class="stat-bar"><i></i></div></div>
+      </div>
+    </div>
+
+    <!-- 技能树（节点连线） -->
+    <div class="panel skilltree hoverable">
+      <h5 style="font-size:11px;color:var(--text-dim);letter-spacing:.25em;margin-bottom:18px;">// SKILL_TREE · 技能树</h5>
+      <div class="tree-wrap">
+        <div class="tree-svg-box" id="treeBox">
+          <svg id="treeSvg" preserveAspectRatio="none"></svg>
+          <!-- 节点：data-from 用于连线 -->
+          <div class="node root" data-id="root" style="left:7%;top:50%;"><div class="dot"></div><div class="label">RIVI.CORE</div><div class="stars">// 主节点</div></div>
+          <div class="node" data-id="visual" data-from="root" style="left:32%;top:18%;"><div class="dot"></div><div class="label">视觉设计系</div><div class="stars">★★★★☆</div></div>
+          <div class="node" data-id="ux" data-from="root" style="left:32%;top:50%;"><div class="dot"></div><div class="label">交互体验系</div><div class="stars">★★★★☆</div></div>
+          <div class="node" data-id="ai" data-from="root" style="left:32%;top:82%;"><div class="dot"></div><div class="label">AI 共创系</div><div class="stars">★★★★☆</div></div>
+          <div class="node" data-id="motion" data-from="visual" style="left:60%;top:18%;"><div class="dot"></div><div class="label">动效 / 品牌</div><div class="stars">★★★☆☆</div></div>
+          <div class="node" data-id="vibe" data-from="ux" style="left:60%;top:50%;"><div class="dot"></div><div class="label">Vibe Coding</div><div class="stars">★★★☆☆ 升级中</div></div>
+          <div class="node" data-id="prompt" data-from="ai" style="left:60%;top:82%;"><div class="dot"></div><div class="label">Prompt 工程</div><div class="stars">★★★★☆</div></div>
+          <div class="node" data-id="proto" data-from="motion" style="left:88%;top:18%;"><div class="dot"></div><div class="label">原型 / 体验优化</div><div class="stars">★★★★☆</div></div>
+          <div class="node" data-id="html" data-from="vibe" style="left:88%;top:50%;"><div class="dot"></div><div class="label">HTML 小网页</div><div class="stars">★★★☆☆</div></div>
+          <div class="node secret" data-id="secret" data-from="prompt" style="left:88%;top:82%;"><div class="dot"></div><div class="label">隐藏：唱歌/算卦</div><div class="stars">SECRET ★★★</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 06 INVENTORY ===== -->
+  <section id="mod-06">
+    <div class="mod-head">
+      <span class="mod-num">06</span><span class="mod-led pink"></span>
+      <span class="mod-title-en">Inventory</span>
+      <span class="mod-title-cn">背包与兴趣爱好</span>
+      <button class="mod-detail-btn" data-modal="inventory">VIEW DETAIL ▶</button>
+    </div>
+    <div class="panel clickable" data-modal="inventory">
+      <span class="view-detail">[ CLICK ]</span>
+      <h5 style="font-size:11px;color:var(--ink-3);letter-spacing:.25em;margin-bottom:14px;border-bottom:1px dashed var(--bg-soft);padding-bottom:8px">// SIDE_QUESTS · 支线任务列表</h5>
+      <div class="inv-grid">
+        <div class="inv-slot"><span class="ico">🎤</span><div class="name">唱歌</div><div class="lvl">LV.MAX</div></div>
+        <div class="inv-slot"><span class="ico">🎹</span><div class="name">弹琴</div><div class="lvl">LV.05</div></div>
+        <div class="inv-slot"><span class="ico">🏊</span><div class="name">游泳</div><div class="lvl">LV.04</div></div>
+        <div class="inv-slot"><span class="ico">💃</span><div class="name">跳舞</div><div class="lvl">LV.03</div></div>
+        <div class="inv-slot"><span class="ico">🤿</span><div class="name">潜水</div><div class="lvl">LV.04</div></div>
+        <div class="inv-slot"><span class="ico">✈️</span><div class="name">旅游</div><div class="lvl">LV.07</div></div>
+        <div class="inv-slot"><span class="ico">⛷️</span><div class="name">滑雪</div><div class="lvl">LV.03</div></div>
+        <div class="inv-slot"><span class="ico">🏸</span><div class="name">羽毛球</div><div class="lvl">LV.04</div></div>
+        <div class="inv-slot"><span class="ico">🧗</span><div class="name">攀岩</div><div class="lvl">LV.03</div></div>
+        <div class="inv-slot hidden-skill"><span class="ico">🔮</span><div class="name">算卦</div><div class="lvl">HIDDEN</div></div>
+        <div class="inv-slot hidden-skill"><span class="ico">🎶</span><div class="name">阿卡贝拉</div><div class="lvl">HIDDEN</div></div>
+        <div class="inv-slot"><span class="ico">🍵</span><div class="name">玄学杂谈</div><div class="lvl">LV.02</div></div>
+      </div>
+      <div class="inv-note">
+        其中 <span class="acc">唱歌</span> 是比较长期的爱好，很喜欢去 KTV，在学校也有一个阿卡贝拉乐团。运动也很喜欢，虽然很多项目都还比较半吊子，但我觉得 尝试新东西 本身就很快乐。此外，我对 <span class="acc">东西方玄学</span> 也很感兴趣，有一些涉猎。
+      </div>
+      <div class="chips" style="margin-top:14px;">
+        <span class="chip pink">支线：KTV / 旅行 / 滑雪 / 攀岩 / 潜水</span>
+        <span class="chip neon">Buff：对新鲜事物好奇心 +20</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 07 TEAM INVITE ===== -->
+  <section id="mod-07">
+    <div class="mod-head">
+      <span class="mod-num">07</span><span class="mod-led"></span>
+      <span class="mod-title-en">Team Invite</span>
+      <span class="mod-title-cn">组队邀请</span>
+      <span class="mod-meta">// MISSION_BROADCAST</span>
+    </div>
+    <div class="invite">
+      <div class="badge">NEW PLAYER JOINED</div>
+      <h2>WELCOME TO <span class="acc">TEAM UP</span></h2>
+      <p>很开心这次加入腾讯新闻设计团队。希望之后能在这里和大家认真完成工作，也慢慢变成好朋友。</p>
+      <p>如果大家喜欢 <span style="color:var(--amber);font-weight:700">唱歌 / KTV / 运动 / 旅游 / 玄学</span>，或者只是想中午一起吃饭，都欢迎来找我玩～</p>
+      <p style="color:var(--brick);margin-top:18px;font-weight:700">// 最后，请多多关照！</p>
+      <div class="chips">
+        <span class="chip neon">当前地图：腾讯新闻小游戏板块</span>
+        <span class="chip cyan">当前任务：学习业务 / 熟悉队友</span>
+        <span class="chip yellow">努力升级中</span>
+        <span class="chip outline">欢迎组队</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <div>// RIVI-ZHANG.PROFILE_v1.0 · BUILD 20260509</div>
+    <div class="end">TRANSMISSION COMPLETE. WELCOME TO TEAM UP.</div>
+  </div>
+</div>
+
+<!-- ===== 详情弹层 Modal ===== -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div class="left"><span class="led"></span><span id="modalTag">DETAIL_VIEW // 01</span></div>
+      <button class="modal-close" id="modalClose">[ X ] CLOSE</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <span>// SCROLL FOR MORE · ESC TO CLOSE</span>
+      <span>RIVI-ZHANG.ARCHIVE</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   交互逻辑
+   ============================================================ */
+
+/* 1) 顶部时钟 */
+function tickClock(){
+  const d=new Date(),pad=n=>String(n).padStart(2,'0');
+  const el=document.getElementById('clock');
+  if(el) el.textContent=`T ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+tickClock();setInterval(tickClock,1000);
+
+/* 2) HERO 打字机（修改大标题：改 HERO_TEXT） */
+const HERO_TEXT="RIVI ZHANG";
+const heroEl=document.getElementById('heroTyped');
+let hi=0;
+function typeHero(){
+  if(!heroEl) return;
+  if(hi<=HERO_TEXT.length){heroEl.textContent=HERO_TEXT.slice(0,hi);hi++;setTimeout(typeHero,110);}
+}
+setTimeout(typeHero,400);
+
+/* 3) 滚动淡入 + 进度条触发 */
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('in');
+      e.target.querySelectorAll('.attr-row,.stat-row').forEach(row=>{
+        const v=parseInt(row.dataset.val||'0',10);
+        const bar=row.querySelector('.attr-bar i,.stat-bar i');
+        if(bar) requestAnimationFrame(()=>{bar.style.width=Math.min(100,v)+'%';});
+      });
+      io.unobserve(e.target);
+    }
+  });
+},{threshold:.12});
+document.querySelectorAll('section').forEach(s=>io.observe(s));
+
+/* hero 内属性条立即触发 */
+window.addEventListener('load',()=>{
+  document.querySelectorAll('.hero .attr-row').forEach(row=>{
+    const v=parseInt(row.dataset.val||'0',10);
+    const bar=row.querySelector('.attr-bar i');
+    if(bar) bar.style.width=Math.min(100,v)+'%';
+  });
+});
+
+/* 4) 雷达图 - 修改维度数值改 radarData */
+const radarData=[
+  {label:'视觉表现力',value:90},
+  {label:'交互体验力',value:87},
+  {label:'AIGC 熟练度',value:85},
+  {label:'学习速度',value:90},
+  {label:'团队亲和力',value:86},
+  {label:'好奇心',value:96}
+];
+const radarCanvas=document.getElementById('radar');
+function setupRadar(){
+  if(!radarCanvas) return null;
+  const dpr=window.devicePixelRatio||1;
+  const size=Math.min(radarCanvas.parentElement.clientWidth-40,460);
+  radarCanvas.width=size*dpr;radarCanvas.height=size*dpr;
+  radarCanvas.style.width=size+'px';radarCanvas.style.height=size+'px';
+  const ctx=radarCanvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);ctx.scale(dpr,dpr);
+  return {ctx,w:size,h:size};
+}
+function drawRadar(progress){
+  const r=setupRadar();if(!r) return;
+  const {ctx,w,h}=r,cx=w/2,cy=h/2,radius=Math.min(w,h)*0.34,N=radarData.length;
+  ctx.clearRect(0,0,w,h);
+  // 外框（深墨双层） - 改为圆角矩形风格
+  ctx.strokeStyle='#0e2b1a';ctx.lineWidth=1.5;ctx.strokeRect(8,8,w-16,h-16);
+  ctx.strokeStyle='rgba(14,43,26,.35)';ctx.lineWidth=1;ctx.strokeRect(16,16,w-32,h-32);
+  // 角块（粉 + 绿对角）
+  const cc=(x,y,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.arc(x+3,y+3,5,0,Math.PI*2);ctx.fill();};
+  cc(3,3,'#ff2bb4');cc(w-10,3,'#2eb75a');cc(3,h-10,'#2eb75a');cc(w-10,h-10,'#ff2bb4');
+  // 同心多边形（浅绿网） + 外层深
+  for(let layer=1;layer<=5;layer++){
+    const rr=radius*(layer/5);
+    ctx.beginPath();
+    for(let i=0;i<N;i++){
+      const a=-Math.PI/2+(Math.PI*2*i)/N;
+      const x=cx+rr*Math.cos(a),y=cy+rr*Math.sin(a);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle=layer===5?'#0e2b1a':'rgba(46,183,90,.35)';
+    ctx.lineWidth=layer===5?1.5:1;ctx.stroke();
+  }
+  // 轴线
+  for(let i=0;i<N;i++){
+    const a=-Math.PI/2+(Math.PI*2*i)/N;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+radius*Math.cos(a),cy+radius*Math.sin(a));
+    ctx.strokeStyle='rgba(46,183,90,.35)';ctx.stroke();
+  }
+  // 数据多边形（亮粉填充 + 深墨描边）
+  ctx.beginPath();
+  for(let i=0;i<N;i++){
+    const a=-Math.PI/2+(Math.PI*2*i)/N;
+    const v=(radarData[i].value/100)*radius*progress;
+    const x=cx+v*Math.cos(a),y=cy+v*Math.sin(a);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle='rgba(255,43,180,.32)';ctx.fill();
+  ctx.strokeStyle='#ff2bb4';ctx.lineWidth=2.5;ctx.stroke();
+  // 数据节点（粉色圆点 + 白色内芯）
+  for(let i=0;i<N;i++){
+    const a=-Math.PI/2+(Math.PI*2*i)/N;
+    const v=(radarData[i].value/100)*radius*progress;
+    const x=cx+v*Math.cos(a),y=cy+v*Math.sin(a);
+    ctx.fillStyle='#ff2bb4';ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ffffff';ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill();
+  }
+  // 标签
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let i=0;i<N;i++){
+    const a=-Math.PI/2+(Math.PI*2*i)/N;
+    const lx=cx+(radius+32)*Math.cos(a),ly=cy+(radius+26)*Math.sin(a);
+    ctx.font='bold 11px ui-monospace,Menlo,Consolas,monospace';
+    ctx.fillStyle='#0e2b1a';ctx.fillText(radarData[i].label,lx,ly);
+    ctx.font='900 12px ui-monospace,Menlo,monospace';
+    ctx.fillStyle='#ff2bb4';ctx.fillText(radarData[i].value,lx,ly+15);
+  }
+  // 中心 logo（绿色圆）
+  ctx.fillStyle='#2eb75a';ctx.beginPath();ctx.arc(cx,cy,14,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffffff';ctx.font='900 9px ui-monospace,Menlo,monospace';
+  ctx.fillText('RIVI',cx,cy-2);
+  ctx.font='7px ui-monospace,Menlo,monospace';
+  ctx.fillText('v2.6',cx,cy+6);
+}
+let radarStarted=false;
+function animateRadar(){
+  if(radarStarted) return;radarStarted=true;
+  let p=0;
+  const tick=()=>{
+    p+=0.04;
+    drawRadar(Math.min(1,1-Math.pow(1-p,3)));
+    if(p<1) requestAnimationFrame(tick); else drawRadar(1);
+  };
+  tick();
+}
+const radarObs=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting) animateRadar();});
+},{threshold:.25});
+if(radarCanvas) radarObs.observe(radarCanvas);
+if(radarCanvas){
+  radarCanvas.addEventListener('mouseenter',()=>{
+    let p=0.85;
+    const pulse=()=>{p+=0.02;if(p>1)p=1;drawRadar(p);if(p<1) requestAnimationFrame(pulse);};
+    pulse();
+  });
+}
+
+/* 5) 技能树连线 */
+function drawTreeLines(){
+  const box=document.getElementById('treeBox');
+  const svg=document.getElementById('treeSvg');
+  if(!box||!svg) return;
+  const rect=box.getBoundingClientRect();
+  svg.setAttribute('viewBox',`0 0 ${rect.width} ${rect.height}`);
+  svg.innerHTML='';
+  const nodes={};
+  box.querySelectorAll('.node').forEach(n=>{
+    const left=parseFloat(n.style.left)/100*rect.width;
+    const top=parseFloat(n.style.top)/100*rect.height;
+    nodes[n.dataset.id]={x:left,y:top};
+  });
+  box.querySelectorAll('.node[data-from]').forEach(n=>{
+    const from=nodes[n.dataset.from],to=nodes[n.dataset.id];
+    if(!from||!to) return;
+    // 折线
+    const midX=(from.x+to.x)/2;
+    const path=`M ${from.x} ${from.y} L ${midX} ${from.y} L ${midX} ${to.y} L ${to.x} ${to.y}`;
+    const el=document.createElementNS('http://www.w3.org/2000/svg','path');
+    el.setAttribute('d',path);
+    el.setAttribute('fill','none');
+    el.setAttribute('stroke','#ff2bb4');
+    el.setAttribute('stroke-width','1.5');
+    el.setAttribute('stroke-dasharray','4,4');
+    svg.appendChild(el);
+  });
+}
+window.addEventListener('load',drawTreeLines);
+
+/* 6) resize 重绘 */
+let resizeTimer;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{
+    if(radarStarted) drawRadar(1);
+    drawTreeLines();
+  },120);
+});
+
+/* ============================================================
+   7) MODAL_DATA · 各板块详情数据
+   ------------------------------------------------------------
+   修改指南：
+   - title / subtitle：详情页大标题和副标题
+   - tag：窗口左上角标签
+   - body：HTML 字符串，支持任意自定义结构
+   - imgs：图片占位数组。要替换为真实图片，把某一项写成
+     { src: 'images/xxx.jpg', label: '作品01' }
+     留空字符串则显示占位。
+   ============================================================ */
+const MODAL_DATA={
+  'profile':{
+    tag:'DETAIL_VIEW // 01 · CHARACTER_PROFILE',
+    title:'Character Profile',
+    subtitle:'角色档案 · SELF_INTRO.LOG · EXTENDED',
+    body:`
+      <div class="modal-section">
+        <h4>ABOUT ME</h4>
+        <p>Hello 大家好，我是 <span class="hl">张睿</span>，也可以叫我 <span class="hl">睿睿</span> 或者 <span class="hl">rivi</span>。目前是清华美院科普信息设计方向的研二学生，本科毕业于江南大学视觉传达设计。</p>
+        <p>学习、项目和实习经历主要围绕 视觉设计、用户体验、AIGC、交互设计 和产品体验展开。喜欢从"好看"出发，往"更有共鸣的体验"走。</p>
+      </div>
+      <div class="modal-section">
+        <h4>PERSONAL TAGS</h4>
+        <ul>
+          <li>ENFJ · 巨蟹座 · 好奇心驱动</li>
+          <li>喜欢唱歌 / KTV / 阿卡贝拉乐团</li>
+          <li>运动半吊子爱好者：游泳 / 滑雪 / 攀岩 / 羽毛球 / 潜水</li>
+          <li>东西方玄学杂谈选手，会一点算卦</li>
+          <li>希望在这里认真工作，也慢慢变成朋友</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h4>PHOTO ARCHIVE</h4>
+        <p>这里可以放你的生活照 / 工作照 / 旅行照等。</p>
+      </div>
+    `,
+    imgs:[
+      {src:'images/自我介绍配图01.jpg',label:'PORTRAIT'},
+      {src:'images/唱歌.jpg',label:'SINGING'},
+      {src:'images/阿卡1.jpg',label:'ACAPELLA'},
+      {src:'images/算卦.jpg',label:'METAPHYSICS'}
+    ]
+  },
+  'learn-1':{
+    tag:'DETAIL_VIEW // 02 · Lv.01',
+    title:'江南大学设计学院',
+    subtitle:'视觉传达设计 / 本科 · 2019 – 2023',
+    body:`
+      <div class="modal-section">
+        <h4>CURRICULUM</h4>
+        <p>本科阶段主要学习视觉传达设计，从 <span class="hl">UI、信息可视化、数字媒体、品牌设计</span> 等方向开始打基础。</p>
+        <ul>
+          <li>视觉基础：色彩、排版、造型、摄影</li>
+          <li>品牌与包装设计</li>
+          <li>信息图表与数据可视化</li>
+          <li>数字媒体与 UI 设计基础</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h4>HIGHLIGHT</h4>
+        <p>那时候更关注的是：怎么把 <span class="hl">信息表达得清楚、好看、有记忆点</span>。</p>
+      </div>
+      <div class="modal-section">
+        <h4>WORKS ARCHIVE</h4>
+      </div>
+    `,
+    imgs:[
+      {label:'UNDERGRAD_01'},
+      {label:'UNDERGRAD_02'},
+      {label:'UNDERGRAD_03'},
+      {label:'UNDERGRAD_04'}
+    ]
+  },
+  'learn-2':{
+    tag:'DETAIL_VIEW // 02 · Lv.02',
+    title:'清华大学美术学院',
+    subtitle:'科普信息设计 / 硕士在读 · 2023 – NOW',
+    body:`
+      <div class="modal-section">
+        <h4>RESEARCH DIRECTION</h4>
+        <p>研究生阶段开始更关注 <span class="hl">信息、体验与技术</span> 之间的关系。当前兴趣方向：</p>
+        <ul>
+          <li>沉浸式体验设计 / 多模态交互</li>
+          <li>用户体验设计 / 互联网产品设计</li>
+          <li>AI 辅助设计 / 生成式设计</li>
+          <li>艺术疗愈 / 情绪交互</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h4>GROWTH PATH</h4>
+        <p>从 <span class="hl">"怎么把东西做得好看"</span>，慢慢升级到 <span class="hl">"怎么让信息更好理解、让体验更有共鸣"</span>。</p>
+      </div>
+      <div class="modal-section">
+        <h4>CAMPUS ARCHIVE</h4>
+      </div>
+    `,
+    imgs:[
+      {label:'GRAD_01'},
+      {label:'GRAD_02'},
+      {label:'GRAD_03'},
+      {label:'GRAD_04'}
+    ]
+  },
+  'map-1':{
+    tag:'DETAIL_VIEW // 03 · MAP_01',
+    title:'字节跳动 · 抖音政务',
+    subtitle:'ROLE: 视觉设计实习生 · 抖音政务运营中台',
+    body:`
+      <div class="modal-section">
+        <h4>SCOPE OF WORK</h4>
+        <p>参与抖音政务和文旅相关活动的视觉系统与页面体验设计，包括：</p>
+        <ul>
+          <li>活动主视觉与品牌衍生系统</li>
+          <li>H5 活动页、运营页面的视觉设计</li>
+          <li>页面信息层级与体验优化</li>
+          <li>使用 Midjourney / Stable Diffusion / 即梦 等 AIGC 工具辅助创意生成</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h4>TAKEAWAY</h4>
+        <p>第一次直观感受互联网业务节奏：<span class="hl">需求会变，时间会紧，但设计表达要稳定、清楚、有效</span>。</p>
+      </div>
+      <div class="modal-section">
+        <h4>PROJECT ARCHIVE</h4>
+      </div>
+    `,
+    imgs:[
+      {label:'BYTEDANCE_01'},
+      {label:'BYTEDANCE_02'},
+      {label:'BYTEDANCE_03'},
+      {label:'BYTEDANCE_04'}
+    ]
+  },
+  'map-2':{
+    tag:'DETAIL_VIEW // 03 · MAP_02',
+    title:'阿里 · 通义实验室',
+    subtitle:'ROLE: AI 视觉美学实习生 · 通义万相 2.6–2.7',
+    body:`
+      <div class="modal-section">
+        <h4>SCOPE OF WORK</h4>
+        <p>参与 <span class="hl">通义万相 2.6 → 2.7</span> 版本的体验与数据体系优化，主要内容：</p>
+        <ul>
+          <li>SFT 多维美学体系建设</li>
+          <li>千人千面 / 调色盘 / 图像编辑功能</li>
+          <li>模型美学评测与用户体验评测</li>
+          <li>System Prompt 编写与优化</li>
+          <li>和算法同学紧密合作，了解生图模型底层原理</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h4>TAKEAWAY</h4>
+        <p><span class="hl">AI 不只是生成工具</span>，也可以参与到 产品体验、审美判断 和 用户表达方式 的设计里。</p>
+      </div>
+      <div class="modal-section">
+        <h4>PROJECT ARCHIVE</h4>
+      </div>
+    `,
+    imgs:[
+      {label:'ALIBABA_01'},
+      {label:'ALIBABA_02'},
+      {label:'ALIBABA_03'},
+      {label:'ALIBABA_04'}
+    ]
+  },
+  'proj-1':{
+    tag:'DETAIL_VIEW // 04 · PROJECT_01',
+    title:'《情绪合成器》',
+    subtitle:'EMOTION SYNTHESIZER · 面部表情识别 × AI 生成 × 艺术疗愈',
+    body:`
+      <div class="modal-section">
+        <h4>CONCEPT</h4>
+        <p>《情绪合成器》是一个基于 <span class="hl">面部表情识别</span> 的情绪交互装置。通过捕捉观众的表情变化，将抽象的情绪状态转化为实时生成的视觉画面，让 <span class="hl">看不见的情绪</span> 变成可以被感知和观看的体验。</p>
+      </div>
+      <div class="modal-section">
+        <h4>APPROACH</h4>
+        <ul>
+          <li>面部表情识别 → 情绪维度映射</li>
+          <li>AI 图像生成 → 实时视觉反馈</li>
+          <li>柔和色彩与温和节奏 → 轻松的观看体验</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h4>VISUAL ARCHIVE</h4>
+      </div>
+    `,
+    imgs:[
+      {src:'images/情绪合成器1.png',label:'EMOTION_01'},
+      {src:'images/情绪合成器2.png',label:'EMOTION_02'},
+      {src:'images/情绪合成器3.png',label:'EMOTION_03'},
+      {src:'images/情绪合成器4.png',label:'EMOTION_04'},
+      {src:'images/情绪合成器5.png',label:'EMOTION_05'},
+      {src:'images/情绪合成器6.png',label:'EMOTION_06'},
+      {src:'images/情绪合成器7.png',label:'EMOTION_07'},
+      {src:'images/情绪合成器8.png',label:'EMOTION_08'}
+    ]
+  },
+  'proj-2':{
+    tag:'DETAIL_VIEW // 04 · PROJECT_02',
+    title:'《递归星辰》',
+    subtitle:'RECURSIVE STARS · 脑电信号 × 生成视觉 × 沉浸交互',
+    body:`
+      <div class="modal-section">
+        <h4>CONCEPT</h4>
+        <p>《递归星辰》是一个基于 <span class="hl">脑电信号</span> 的沉浸式交互装置。观众的脑波状态会影响星空视觉的生成与变化，让个体的 <span class="hl">专注、放松等状态</span> 转化为不断生长的数字星辰。</p>
+        <p>每一次参与，都会点亮一片不同的星空。</p>
+      </div>
+      <div class="modal-section">
+        <h4>APPROACH</h4>
+        <ul>
+          <li>EEG 脑电设备采集信号</li>
+          <li>实时映射到粒子系统与星空生成参数</li>
+          <li>沉浸式大屏投影 + 空间音景</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h4>VISUAL ARCHIVE</h4>
+      </div>
+    `,
+    imgs:[
+      {src:'images/递归星辰1.png',label:'STARS_01'},
+      {src:'images/递归星辰2.png',label:'STARS_02'},
+      {src:'images/递归星辰3.png',label:'STARS_03'},
+      {src:'images/递归星辰4.png',label:'STARS_04'}
+    ]
+  },
+  'proj-3':{
+    tag:'DETAIL_VIEW // 04 · ARCHIVE',
+    title:'Illustration Archive',
+    subtitle:'早期存档 · 考研时期手绘插画',
+    body:`
+      <div class="modal-section">
+        <h4>DESCRIPTION</h4>
+        <p>一些考研时期的插画作品，作为视觉补充。它们更像是早期设计训练里的 <span class="hl">"手绘存档"</span>，记录了从视觉表达开始积累的一段时间。</p>
+        <p>题材覆盖角色设计、场景氛围、书籍装帧练习等。</p>
+      </div>
+      <div class="modal-section">
+        <h4>IMAGE ARCHIVE</h4>
+      </div>
+    `,
+    imgs:[
+      {src:'images/手绘1.png',label:'ILLUSTRATION_01'},
+      {src:'images/手绘2.png',label:'ILLUSTRATION_02'},
+      {src:'images/手绘3.png',label:'ILLUSTRATION_03'},
+      {src:'images/手绘4.png',label:'ILLUSTRATION_04'},
+      {src:'images/手绘5.png',label:'ILLUSTRATION_05'},
+      {src:'images/手绘6.png',label:'ILLUSTRATION_06'}
+    ]
+  },
+  'inventory':{
+    tag:'DETAIL_VIEW // 06 · INVENTORY',
+    title:'Side Quests',
+    subtitle:'背包与兴趣爱好 · HOBBY.SLOTS · EXTENDED',
+    body:`
+      <div class="modal-section">
+        <h4>LONG-TERM QUESTS</h4>
+        <ul>
+          <li><span class="hl">唱歌</span> · 长期爱好，KTV 常客，学校阿卡贝拉乐团成员</li>
+          <li><span class="hl">旅游</span> · 一有假期就想出发</li>
+          <li><span class="hl">玄学杂谈</span> · 东西方玄学都感兴趣，会一点算卦</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h4>SPORTS · HALF-PRO BUT HAPPY</h4>
+        <ul>
+          <li>游泳 / 羽毛球 / 滑雪 / 攀岩 / 潜水 / 跳舞 / 弹琴</li>
+          <li>"半吊子但很快乐" 才是精髓</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h4>PHOTO ARCHIVE</h4>
+      </div>
+    `,
+    imgs:[
+      {src:'images/唱歌.jpg',label:'HOBBY_SING'},
+      {src:'images/阿卡1.jpg',label:'HOBBY_ACAPELLA'},
+      {src:'images/滑雪.jpg',label:'HOBBY_SKI'},
+      {src:'images/攀岩.jpg',label:'HOBBY_CLIMB'},
+      {src:'images/潜水.jpg',label:'HOBBY_DIVE'},
+      {src:'images/算卦.jpg',label:'HOBBY_METAPHYSICS'}
+    ]
+  }
+};
+
+/* 8) Modal 交互：打开 / 关闭 / 渲染 */
+const modalMask=document.getElementById('modalMask');
+const modalBody=document.getElementById('modalBody');
+const modalTag=document.getElementById('modalTag');
+const modalClose=document.getElementById('modalClose');
+
+function openModal(key){
+  const data=MODAL_DATA[key];
+  if(!data){return;}
+  modalTag.textContent=data.tag||'DETAIL_VIEW';
+  // 构造图集 HTML
+  const gallery=(data.imgs||[]).map(img=>{
+    // 真实图片：把下面整个 <div class="ph"> 替换为 <div class="ph"><img src="xxx.jpg"></div>
+    if(img && img.src){
+      return `<div class="ph"><img src="${img.src}" alt="${img.label||''}"></div>`;
+    }
+    return `<div class="ph"><div class="lbl"><div class="ic">▦</div><div>${img.label||'IMG_PLACEHOLDER'}</div><small>// 替换为真实图片路径</small></div></div>`;
+  }).join('');
+  modalBody.innerHTML=`
+    <div class="modal-title">${data.title||''}</div>
+    <div class="modal-subtitle">${data.subtitle||''}</div>
+    ${data.body||''}
+    ${gallery?`<div class="modal-gallery">${gallery}</div>`:''}
+  `;
+  modalMask.classList.add('show');
+  document.body.style.overflow='hidden';
+  // 滚到顶
+  modalBody.scrollTop=0;
+}
+function closeModal(){
+  modalMask.classList.remove('show');
+  document.body.style.overflow='';
+}
+
+/* 绑定所有 data-modal 元素 */
+document.querySelectorAll('[data-modal]').forEach(el=>{
+  el.addEventListener('click',(ev)=>{
+    ev.stopPropagation();
+    const key=el.getAttribute('data-modal');
+    openModal(key);
+  });
+});
+modalClose.addEventListener('click',closeModal);
+modalMask.addEventListener('click',(ev)=>{if(ev.target===modalMask) closeModal();});
+document.addEventListener('keydown',(ev)=>{if(ev.key==='Escape') closeModal();});
+</script>
+</body>
+</html>
