@@ -147,7 +147,7 @@ section.in{opacity:1;transform:translateY(0)}
 /* HERO_PHOTO 主照片大卡 - 替换真实照片：把 .photo-frame 内部内容换成 <img> */
 .photo-card{padding:0;overflow:hidden;display:flex;flex-direction:column;background:var(--green-soft);border-color:var(--ink)}
 .photo-frame{width:100%;aspect-ratio:4/5;background:var(--green-soft);position:relative;display:flex;align-items:center;justify-content:center;border-bottom:1.5px solid var(--ink);overflow:hidden}
-.photo-frame > img{width:100%;height:100%;object-fit:contain;display:block;position:relative;z-index:1;padding:12px}
+.photo-frame > img{width:100%;height:100%;object-fit:contain;display:block;position:relative;z-index:1;padding:0}
 /* 装饰：淡色放射线 */
 .photo-frame::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(46,183,90,.12) 0 1px,transparent 1px 24px);pointer-events:none}
 .photo-frame .ph-mark{position:absolute;top:14px;left:14px;font-size:10px;letter-spacing:.25em;color:#fff;background:var(--pink);padding:4px 10px;font-weight:800;z-index:2;border-radius:999px}
@@ -214,18 +214,21 @@ section.in{opacity:1;transform:translateY(0)}
 .proj-card .kw{font-size:11px;color:var(--green);letter-spacing:.1em;margin-bottom:12px;font-weight:700}
 /* 项目卡封面图（可选） */
 .card-cover{margin:-24px -24px 16px -24px;border-bottom:1.5px solid var(--ink);background:var(--green-soft);aspect-ratio:16/9;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.card-cover img{width:100%;height:100%;object-fit:contain;padding:8px;display:block}
+.card-cover img{width:100%;height:100%;object-fit:contain;padding:2px;display:block}
 
-/* ===== 早期插画占位 ===== */
-.archive-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
-@media(max-width:720px){.archive-grid{grid-template-columns:1fr 1fr}}
-.placeholder{aspect-ratio:1/1;background:var(--green-soft);border:1.5px solid var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ink);font-size:10px;letter-spacing:.2em;position:relative;transition:all .25s ease;cursor:pointer;font-weight:700;overflow:hidden}
+/* ===== 早期插画占位（瀑布流） ===== */
+.archive-grid{columns:3;column-gap:14px;margin-top:22px}
+@media(max-width:880px){.archive-grid{columns:2}}
+@media(max-width:520px){.archive-grid{columns:1}}
+.placeholder{break-inside:avoid;background:var(--green-soft);border:1.5px solid var(--ink);display:block;color:var(--ink);font-size:10px;letter-spacing:.2em;position:relative;transition:all .25s ease;cursor:pointer;font-weight:700;overflow:hidden;margin:0 0 14px 0;padding:0;border-radius:6px}
 .placeholder::before,.placeholder::after{content:"";position:absolute;width:12px;height:12px;background:var(--pink);border-radius:50%;z-index:2}
 .placeholder::before{top:-6px;left:-6px}
 .placeholder::after{bottom:-6px;right:-6px}
 .placeholder:hover{transform:translateY(-2px);box-shadow:4px 4px 0 var(--pink)}
 .placeholder:hover::before,.placeholder:hover::after{background:var(--green)}
-.placeholder > img{width:100%;height:100%;object-fit:contain;display:block;padding:10px;background:var(--green-soft)}
+.placeholder > img{width:100%;height:auto;display:block;padding:0;background:var(--green-soft)}
+/* 没有图片时的占位（保留方块） */
+.placeholder.empty{aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .placeholder .icon{width:40px;height:40px;border:2px solid var(--ink);margin-bottom:10px;display:grid;place-items:center;font-size:18px;color:var(--pink);background:#fff;border-radius:50%}
 
 /* ===== Status / Radar / Tree ===== */
@@ -319,16 +322,17 @@ section.in{opacity:1;transform:translateY(0)}
 .modal-section ul{list-style:none;padding:0;margin:10px 0}
 .modal-section ul li{padding:8px 0 8px 22px;position:relative;font-size:12.5px;color:var(--ink);border-bottom:1px dashed rgba(14,43,26,.15)}
 .modal-section ul li::before{content:"";position:absolute;left:0;top:13px;width:8px;height:8px;background:var(--green);border-radius:50%}
-.modal-gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px}
-@media(max-width:600px){.modal-gallery{grid-template-columns:1fr}}
-.modal-gallery .ph{aspect-ratio:4/3;background:var(--green-soft);border:1.5px solid var(--ink);position:relative;display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:10px;letter-spacing:.25em;text-align:center;padding:20px;border-radius:12px;overflow:hidden}
+.modal-gallery{columns:2;column-gap:10px;margin-top:14px}
+@media(max-width:600px){.modal-gallery{columns:1}}
+.modal-gallery .ph{break-inside:avoid;background:var(--green-soft);border:1.5px solid var(--ink);position:relative;display:block;color:var(--ink);font-size:10px;letter-spacing:.25em;text-align:center;border-radius:8px;overflow:hidden;margin:0 0 10px 0;padding:0}
+.modal-gallery .ph.empty{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;padding:20px}
 .modal-gallery .ph::before,.modal-gallery .ph::after{content:"";position:absolute;width:10px;height:10px;background:var(--pink);border-radius:50%;z-index:2}
 .modal-gallery .ph::before{top:-5px;left:-5px}
 .modal-gallery .ph::after{bottom:-5px;right:-5px;background:var(--green)}
 .modal-gallery .ph .lbl{display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700}
 .modal-gallery .ph .lbl .ic{font-size:32px;color:var(--pink)}
 .modal-gallery .ph .lbl small{color:var(--ink-3);font-size:9px}
-.modal-gallery .ph img{width:100%;height:100%;object-fit:contain;display:block;padding:8px;background:var(--green-soft)}
+.modal-gallery .ph img{width:100%;height:auto;display:block;padding:0;background:var(--green-soft)}
 .modal-foot{padding:16px 22px;border-top:1.5px solid var(--ink);background:var(--green-soft);font-size:10px;color:var(--ink);letter-spacing:.2em;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-weight:700}
 
 ::-webkit-scrollbar{width:10px;height:10px;background:#fff}
@@ -572,6 +576,9 @@ section.in{opacity:1;transform:translateY(0)}
         <div class="placeholder"><img src="images/illustration-1.png" alt="插画 01"></div>
         <div class="placeholder"><img src="images/illustration-2.png" alt="插画 02"></div>
         <div class="placeholder"><img src="images/illustration-3.png" alt="插画 03"></div>
+        <div class="placeholder"><img src="images/illustration-4.png" alt="插画 04"></div>
+        <div class="placeholder"><img src="images/illustration-5.png" alt="插画 05"></div>
+        <div class="placeholder"><img src="images/illustration-6.png" alt="插画 06"></div>
       </div>
       <div class="chips" style="margin-top:18px;"><span class="chip">早期存档</span><span class="chip">插画练习</span><span class="chip neon">视觉表达 +1</span></div>
     </div>
@@ -1200,7 +1207,7 @@ function openModal(key){
     if(img && img.src){
       return `<div class="ph"><img src="${img.src}" alt="${img.label||''}"></div>`;
     }
-    return `<div class="ph"><div class="lbl"><div class="ic">▦</div><div>${img.label||'IMG_PLACEHOLDER'}</div><small>// 替换为真实图片路径</small></div></div>`;
+    return `<div class="ph empty"><div class="lbl"><div class="ic">▦</div><div>${img.label||'IMG_PLACEHOLDER'}</div><small>// 替换为真实图片路径</small></div></div>`;
   }).join('');
   modalBody.innerHTML=`
     <div class="modal-title">${data.title||''}</div>
