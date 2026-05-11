@@ -61,7 +61,8 @@
   --serif:"Noto Sans SC","Source Han Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+@media(max-width:880px){html{scroll-snap-type:none}}
 body{background:var(--bg-0);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.65;overflow-x:hidden;position:relative;-webkit-font-smoothing:antialiased}
 /* 背景细线网格（淡粉 + 淡绿双色，极轻） */
 body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(46,183,90,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(46,183,90,.08) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:1}
@@ -91,18 +92,23 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:3;opac
 .marquee-track span::after{content:"●";color:var(--yellow);opacity:1}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-.wrap{max-width:1280px;margin:0 auto;padding:80px 28px 80px;position:relative;z-index:5}
+.wrap{max-width:1320px;margin:0 auto;padding:80px 36px 80px;position:relative;z-index:5}
 
 /* ===== 通用模块头 / 面板 ===== */
-section{margin:90px 0;position:relative;opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease}
+/* PPT 单屏放映：每个 section 至少 100vh，内容垂直居中，留出顶部状态栏空间 */
+section{min-height:100vh;margin:0;padding:88px 0 56px;position:relative;opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease;display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:60px}
+@media(max-width:880px){section{min-height:auto;padding:80px 0 48px}}
 section.in{opacity:1;transform:translateY(0)}
-.mod-head{display:flex;align-items:flex-end;gap:14px;margin-bottom:32px;border-bottom:2px solid var(--ink);padding-bottom:18px;flex-wrap:wrap}
+/* section 内的内容容器 */
+.sec-inner{width:100%;display:flex;flex-direction:column;justify-content:center;flex:1;min-height:0}
+section.in{opacity:1;transform:translateY(0)}
+.mod-head{display:flex;align-items:flex-end;gap:14px;margin-bottom:28px;border-bottom:2px solid var(--ink);padding-bottom:16px;flex-wrap:wrap}
 .mod-num{font-size:10px;color:var(--ink);background:transparent;padding:4px 12px;letter-spacing:.22em;font-weight:700;font-family:var(--mono);border:1.2px solid var(--ink);border-radius:2px}
 .mod-led{width:10px;height:10px;background:var(--pink);border-radius:50%;animation:blink 2s infinite;flex-shrink:0;border:1.2px solid var(--ink)}
 .mod-led.cyan{background:var(--green)}
 .mod-led.yellow{background:var(--yellow)}
 .mod-led.pink{background:var(--pink)}
-.mod-title-en{font-size:clamp(28px,4vw,52px);letter-spacing:-.02em;font-weight:900;color:var(--ink);text-transform:uppercase;font-family:var(--display);line-height:.95}
+.mod-title-en{font-size:clamp(32px,5vw,68px);letter-spacing:-.025em;font-weight:900;color:var(--ink);text-transform:uppercase;font-family:var(--display);line-height:.95}
 .mod-title-cn{font-size:14px;color:var(--pink);letter-spacing:.18em;margin-left:6px;font-weight:500;font-family:var(--serif);align-self:center}
 .mod-meta{margin-left:auto;font-size:10px;color:var(--ink-3);letter-spacing:.22em;font-family:var(--mono);align-self:center}
 .mod-detail-btn{font-size:10px;letter-spacing:.22em;padding:6px 14px;border:1.2px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;font-family:var(--mono);transition:all .2s;display:inline-flex;align-items:center;gap:6px;font-weight:700;border-radius:2px;align-self:center}
@@ -130,7 +136,7 @@ section.in{opacity:1;transform:translateY(0)}
 .chip.outline{color:var(--pink);border-color:var(--pink);background:#fff}
 
 /* ===== HERO ===== */
-.hero{min-height:calc(100vh - 80px);display:flex;flex-direction:column;justify-content:center;padding-top:20px;opacity:1;transform:none;margin-top:0;position:relative}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:88px 0 56px;opacity:1;transform:none;margin-top:0;position:relative}
 /* 漂浮装饰胶囊（细描边低调版） */
 .deco-pill{position:absolute;display:inline-flex;align-items:center;justify-content:center;border-radius:2px;border:1.2px solid var(--ink);font-family:var(--mono);font-weight:600;text-transform:uppercase;letter-spacing:.18em;font-size:10px;padding:6px 14px;background:#fff;z-index:6;white-space:nowrap}
 .deco-pill.dp-pink{background:var(--pink);color:#fff;border-color:var(--pink)}
@@ -156,7 +162,7 @@ section.in{opacity:1;transform:translateY(0)}
 .hero-tag{margin-top:8px;font-size:11px;color:var(--ink-2);letter-spacing:.3em;font-weight:600;font-family:var(--mono)}
 
 /* HERO 主网格 */
-.hero-main{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;margin-top:48px;position:relative}
+.hero-main{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;margin-top:34px;position:relative}
 @media(max-width:980px){.hero-main{grid-template-columns:1fr}}
 
 /* HERO_PHOTO 主照片大卡 - 替换真实照片：把 .photo-frame 内部内容换成 <img> */
@@ -231,19 +237,29 @@ section.in{opacity:1;transform:translateY(0)}
 .card-cover{margin:-24px -24px 16px -24px;border-bottom:1.5px solid var(--ink);background:var(--green-soft);aspect-ratio:16/9;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .card-cover img{width:100%;height:100%;object-fit:contain;padding:2px;display:block}
 
-/* ===== 早期插画占位（瀑布流） ===== */
-.archive-grid{columns:3;column-gap:14px;margin-top:22px}
-@media(max-width:880px){.archive-grid{columns:2}}
-@media(max-width:520px){.archive-grid{columns:1}}
-.placeholder{break-inside:avoid;background:var(--green-soft);border:1.5px solid var(--ink);display:block;color:var(--ink);font-size:10px;letter-spacing:.2em;position:relative;transition:all .25s ease;cursor:pointer;font-weight:700;overflow:hidden;margin:0 0 14px 0;padding:0;border-radius:6px}
-.placeholder::before,.placeholder::after{content:"";position:absolute;width:12px;height:12px;background:var(--pink);border-radius:50%;z-index:2}
-.placeholder::before{top:-6px;left:-6px}
-.placeholder::after{bottom:-6px;right:-6px}
-.placeholder:hover{transform:translateY(-2px);box-shadow:4px 4px 0 var(--pink)}
-.placeholder:hover::before,.placeholder:hover::after{background:var(--green)}
-.placeholder > img{width:100%;height:auto;display:block;padding:0;background:var(--green-soft)}
-/* 没有图片时的占位（保留方块） */
-.placeholder.empty{aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+/* ===== 早期插画存档卡（PPT 风：标题 + 缩略图预览） ===== */
+.archive-card-inner{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center}
+@media(max-width:880px){.archive-card-inner{grid-template-columns:1fr}}
+.archive-card-text{display:flex;flex-direction:column;gap:6px}
+.archive-card-preview{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.archive-thumb{aspect-ratio:1/1;background:var(--bg-soft);border:1.2px solid var(--ink);overflow:hidden;display:flex;align-items:center;justify-content:center;border-radius:3px;transition:transform .25s ease}
+.archive-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.archive-thumb-more{background:var(--pink);color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-align:center;line-height:1.4;font-weight:700}
+.archive-thumb-more b{font-family:var(--display);font-size:22px;font-weight:900;display:block;margin-bottom:2px}
+.archive-card.clickable:hover .archive-thumb{transform:scale(.98)}
+
+/* ===== 右侧 PPT 页码导航 ===== */
+.slide-nav{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:90;display:flex;flex-direction:column;gap:6px;padding:14px 12px;background:rgba(255,255,255,.85);border:1.2px solid var(--ink);border-radius:4px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.slide-nav .sn-item{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink-3);font-family:var(--mono);font-size:9px;letter-spacing:.18em;font-weight:600;padding:4px 8px;border-radius:2px;transition:all .2s;white-space:nowrap}
+.slide-nav .sn-item .sn-num{font-weight:800;color:var(--ink-3)}
+.slide-nav .sn-item .sn-label{opacity:0;transform:translateX(-4px);transition:all .25s ease;max-width:0;overflow:hidden}
+.slide-nav .sn-item:hover{color:var(--ink);background:var(--bg-soft)}
+.slide-nav .sn-item:hover .sn-label{opacity:1;transform:translateX(0);max-width:120px}
+.slide-nav .sn-item.active{background:var(--pink);color:#fff}
+.slide-nav .sn-item.active .sn-num{color:#fff}
+.slide-nav .sn-item.active .sn-label{opacity:1;transform:translateX(0);max-width:120px;color:#fff}
+@media(max-width:1100px){.slide-nav{right:10px;padding:10px 8px}.slide-nav .sn-item .sn-label,.slide-nav .sn-item.active .sn-label{display:none}}
+@media(max-width:720px){.slide-nav{display:none}}
 .placeholder .icon{width:40px;height:40px;border:2px solid var(--ink);margin-bottom:10px;display:grid;place-items:center;font-size:18px;color:var(--pink);background:#fff;border-radius:50%}
 
 /* ===== Status / Radar / Tree ===== */
@@ -409,6 +425,19 @@ section.in{opacity:1;transform:translateY(0)}
     <span>NEW PLAYER JOINED THE TEAM</span>
   </div>
 </div>
+
+<!-- 右侧 PPT 页码导航 -->
+<nav class="slide-nav" id="slideNav" aria-label="幻灯片导航">
+  <a href="#hero" data-target="hero" class="sn-item active"><span class="sn-num">00</span><span class="sn-label">START</span></a>
+  <a href="#mod-01" data-target="mod-01" class="sn-item"><span class="sn-num">01</span><span class="sn-label">PROFILE</span></a>
+  <a href="#mod-02" data-target="mod-02" class="sn-item"><span class="sn-num">02</span><span class="sn-label">LEARN</span></a>
+  <a href="#mod-03" data-target="mod-03" class="sn-item"><span class="sn-num">03</span><span class="sn-label">MAPS</span></a>
+  <a href="#mod-04" data-target="mod-04" class="sn-item"><span class="sn-num">04</span><span class="sn-label">PROJECT</span></a>
+  <a href="#mod-05" data-target="mod-05" class="sn-item"><span class="sn-num">05</span><span class="sn-label">STATUS</span></a>
+  <a href="#mod-06" data-target="mod-06" class="sn-item"><span class="sn-num">06</span><span class="sn-label">FOOTPRINT</span></a>
+  <a href="#mod-07" data-target="mod-07" class="sn-item"><span class="sn-num">07</span><span class="sn-label">INVENTORY</span></a>
+  <a href="#mod-08" data-target="mod-08" class="sn-item"><span class="sn-num">08</span><span class="sn-label">INVITE</span></a>
+</nav>
 
 <div class="wrap">
 
@@ -600,24 +629,24 @@ section.in{opacity:1;transform:translateY(0)}
     </div>
 
     <!-- 早期插画存档 -->
-    <div class="panel clickable" data-modal="proj-3" style="margin-top:22px;">
+    <div class="panel clickable archive-card" data-modal="proj-3" style="margin-top:22px;">
       <span class="view-detail">[ CLICK ]</span>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-        <h3 style="font-size:16px;letter-spacing:.05em;font-family:var(--sans);font-weight:800;color:var(--ink);">早期存档 · ILLUSTRATION ARCHIVE</h3>
-        <small style="color:var(--ink-3);font-size:10px;letter-spacing:.2em;">// 考研时期手绘存档</small>
+      <div class="archive-card-inner">
+        <div class="archive-card-text">
+          <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+            <h3 style="font-size:18px;letter-spacing:.04em;font-family:var(--display);font-weight:900;color:var(--ink);text-transform:uppercase;">Illustration Archive</h3>
+            <small style="color:var(--ink-3);font-size:10px;letter-spacing:.22em;font-family:var(--mono);">EST. 2018 — 2019</small>
+          </div>
+          <p style="font-size:13px;line-height:1.85;color:var(--ink-2);max-width:480px;">考研时期的手绘插画存档 · 一段从视觉表达开始积累的时间。8 张作品，点击查看完整图集。</p>
+          <div class="chips" style="margin-top:14px;"><span class="chip">早期存档</span><span class="chip">插画练习</span><span class="chip">视觉表达 +1</span></div>
+        </div>
+        <div class="archive-card-preview">
+          <div class="archive-thumb"><img src="images/illustration-1.png" alt="插画 01"></div>
+          <div class="archive-thumb"><img src="images/illustration-2.png" alt="插画 02"></div>
+          <div class="archive-thumb"><img src="images/illustration-3.png" alt="插画 03"></div>
+          <div class="archive-thumb archive-thumb-more"><span><b>+5</b><br>MORE</span></div>
+        </div>
       </div>
-      <p style="font-size:12.5px;line-height:1.85;color:var(--ink-2)">一些考研时期的插画作品，作为视觉补充。它们更像是早期设计训练里的"手绘存档"，记录了从视觉表达开始积累的一段时间。</p>
-      <div class="archive-grid">
-        <div class="placeholder"><img src="images/illustration-1.png" alt="插画 01"></div>
-        <div class="placeholder"><img src="images/illustration-2.png" alt="插画 02"></div>
-        <div class="placeholder"><img src="images/illustration-3.png" alt="插画 03"></div>
-        <div class="placeholder"><img src="images/illustration-4.png" alt="插画 04"></div>
-        <div class="placeholder"><img src="images/illustration-5.png" alt="插画 05"></div>
-        <div class="placeholder"><img src="images/illustration-6.png" alt="插画 06"></div>
-        <div class="placeholder"><img src="images/illustration-7.png" alt="插画 07"></div>
-        <div class="placeholder"><img src="images/illustration-8.png" alt="插画 08"></div>
-      </div>
-      <div class="chips" style="margin-top:18px;"><span class="chip">早期存档</span><span class="chip">插画练习</span><span class="chip neon">视觉表达 +1</span></div>
     </div>
   </section>
 
@@ -815,6 +844,21 @@ const io=new IntersectionObserver((entries)=>{
   });
 },{threshold:.12});
 document.querySelectorAll('section').forEach(s=>io.observe(s));
+
+/* 3.5) 右侧页码导航：滚动同步当前 section */
+(function initSlideNav(){
+  const navItems=document.querySelectorAll('.slide-nav .sn-item');
+  if(!navItems.length) return;
+  const navObs=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const id=e.target.id;
+        navItems.forEach(a=>a.classList.toggle('active',a.dataset.target===id));
+      }
+    });
+  },{threshold:.45,rootMargin:'-20% 0px -30% 0px'});
+  document.querySelectorAll('section').forEach(s=>{if(s.id) navObs.observe(s)});
+})();
 
 /* hero 内属性条立即触发 */
 window.addEventListener('load',()=>{
