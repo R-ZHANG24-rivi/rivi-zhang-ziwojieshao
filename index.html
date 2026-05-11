@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0e2b1a" />
 <title>RIVI ZHANG // INCOMING BROADCAST</title>
 <!-- Google Fonts：Capsule + Creative Mode 风格 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -408,16 +409,164 @@ section.in{opacity:1;transform:translateY(0)}
 ::-webkit-scrollbar-thumb{background:var(--pink);border:2px solid #fff;border-radius:999px}
 ::-webkit-scrollbar-thumb:hover{background:var(--green)}
 
-@media(max-width:720px){
-  .statusbar{font-size:9px;padding:0 12px}
-  .statusbar .seg{padding:0 8px;gap:6px}
+/* ============================================================
+   移动端适配 (≤ 768px)
+   - 关闭 PPT 单屏吸附，恢复自然流式滚动
+   - 全部网格单列，字号收紧
+   - statusbar / marquee 精简
+   - lightbox 导航按钮移到底部
+   ============================================================ */
+@media(max-width:768px){
+  /* 顶部状态栏 */
+  .statusbar{font-size:9px;padding:0 10px;height:28px}
+  .statusbar .seg{padding:0 6px;gap:4px;border-right:none}
   .statusbar .seg.hide-mobile{display:none}
-  .wrap{padding:80px 16px 60px}
-  section{margin:60px 0}
-  .mod-title-en{font-size:24px}
-  .mod-title-cn{display:none}
-  .modal-body{padding:20px}
+  .statusbar .clock,.statusbar .signal{font-size:9px}
+  .marquee{top:28px;height:20px;font-size:9px}
+  .marquee-track{font-size:9px;letter-spacing:.18em}
+
+  /* 包裹器 + section：去掉 100vh 限制，允许内容自然延展 */
+  .wrap{padding:64px 14px 48px;max-width:100%}
+  section{min-height:auto !important;padding:36px 0 28px;margin:0;display:block !important}
+  .hero{min-height:calc(100svh - 56px);min-height:calc(100vh - 56px);padding:48px 0 32px}
+
+  /* 模块头 */
+  .mod-head{margin-bottom:18px;padding-bottom:12px;gap:8px;border-bottom-width:1.5px}
+  .mod-num{font-size:9px;padding:3px 8px;letter-spacing:.16em}
+  .mod-title-en{font-size:32px !important;letter-spacing:-.02em}
+  .mod-title-cn{font-size:11px;letter-spacing:.12em;display:inline-block !important;margin-left:0;width:100%;margin-top:4px}
+  .mod-meta{display:none}
+  .mod-detail-btn{margin-left:auto;font-size:9px;padding:5px 10px}
+
+  /* HERO */
+  .hero-title{font-size:clamp(56px,16vw,84px) !important;line-height:.92 !important}
+  .hero-tagline{font-size:10px;letter-spacing:.16em;gap:8px;margin-top:14px}
+  .hero-tagline .bar{width:32px}
+  .hero-sub{font-size:18px !important;letter-spacing:.1em}
+  .hero-tag{font-size:10px;letter-spacing:.18em;line-height:1.6}
+  .hero-top{font-size:9px;margin-bottom:12px}
+  .hero-top .right{display:none}
+  .loading-line{font-size:10px;gap:8px;margin-bottom:14px}
+  .loading-bar{min-width:100px}
   .deco-pill{display:none}
+
+  /* HERO 主网格：图片在上、信息在下 */
+  .hero-main{grid-template-columns:1fr;gap:14px;margin-top:22px}
+  .photo-frame{aspect-ratio:4/5}
+  .photo-frame .ph-mark,.photo-frame .ph-id,.photo-frame .ph-tick{font-size:9px;padding:3px 8px}
+
+  /* 通用 panel 字号 */
+  .panel{padding:18px 16px;border-radius:3px}
+  .panel .view-detail{top:10px;right:10px;font-size:8px;padding:3px 8px;letter-spacing:.18em}
+  .panel::before,.panel::after{width:8px;height:8px}
+  .panel::before{top:-4px;left:-4px}
+  .panel::after{bottom:-4px;right:-4px}
+
+  /* PROFILE / LEARN / MAPS / PROJECT 等所有双列 → 单列（已存在但加强） */
+  .profile-grid,.timeline,.maps-grid,.proj-grid,.status-grid,.archive-card-inner{grid-template-columns:1fr !important;gap:14px}
+
+  /* PROFILE 卡 */
+  .profile-text{padding:18px}
+  .profile-text h3{font-size:18px}
+  .profile-text p,.lv-card p,.map-card p,.proj-card p{font-size:13px;line-height:1.7}
+  .lv-card h3,.map-card h3,.proj-card h3{font-size:17px}
+  .map-head{flex-direction:column;align-items:flex-start;gap:6px}
+  .quote{font-size:12px;padding:10px 14px}
+
+  /* 项目卡 */
+  .proj-card{padding-top:0}
+  .card-cover{margin:-18px -16px 14px}
+  .card-cover img{padding:0}
+
+  /* 早期插画卡 */
+  .archive-card .archive-card-preview{grid-template-columns:repeat(4,1fr);gap:6px}
+  .archive-thumb-more b{font-size:18px}
+  .archive-thumb-more{font-size:9px;letter-spacing:.12em}
+
+  /* 雷达图 + stat-list */
+  .radar-wrap{padding:14px}
+  .radar-wrap canvas{max-width:320px}
+  .stat-list{padding:16px}
+  .stat-list h5,.attr-panel h5{font-size:10px;margin-bottom:10px;letter-spacing:.18em}
+  .stat-row,.attr-row{margin-bottom:10px}
+  .stat-row .lbl,.attr-row .lbl{font-size:11px}
+
+  /* Footprints 卡片网格 */
+  .footprint-wrap{padding:18px 16px}
+  .fp-card-grid{grid-template-columns:repeat(2,1fr);gap:6px}
+  .fp-card{padding:14px 12px 12px}
+  .fp-card-cn{font-size:18px}
+  .fp-card-en{font-size:9px}
+  .fp-card-flag{font-size:18px;top:10px;right:10px}
+  .fp-section-title{font-size:11px}
+  .fp-section-count{font-size:9px}
+  .footprint-head{margin-bottom:16px;padding-bottom:10px}
+
+  /* INVENTORY */
+  .inv-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .inv-slot{padding:14px 8px}
+  .inv-slot .ico{font-size:24px}
+  .inv-slot .name{font-size:10px;letter-spacing:.06em}
+  .inv-slot .lvl{font-size:8px}
+  .inv-note{font-size:11px;padding:12px 14px;line-height:1.7}
+
+  /* INVITE */
+  .invite{padding:48px 18px 40px}
+  .invite .badge{font-size:9px;padding:5px 12px;letter-spacing:.2em;margin-bottom:18px}
+  .invite h2{font-size:48px !important;line-height:.95;margin-bottom:14px}
+  .invite p{font-size:13px;line-height:1.75}
+  .invite .chips{justify-content:center;gap:5px}
+
+  /* 模块 02 学历卡 lv-tag */
+  .lv-tag{font-size:9px;padding:3px 8px;letter-spacing:.18em}
+  .role,.sch{font-size:11px}
+
+  /* chips */
+  .chip{font-size:9px;padding:4px 10px;letter-spacing:.1em}
+
+  /* 状态栏 LED */
+  .mod-led{width:8px;height:8px}
+
+  /* footer */
+  .footer{flex-direction:column;align-items:flex-start;font-size:9px;gap:6px;padding:20px 0}
+
+  /* MODAL 弹层全屏化 */
+  .modal-mask{padding:0;align-items:stretch}
+  .modal{max-width:100%;width:100%;height:100vh;border-radius:0;border:none;box-shadow:none;display:flex;flex-direction:column}
+  .modal::before,.modal::after{display:none}
+  .modal-head{padding:14px 16px;font-size:10px;letter-spacing:.16em}
+  .modal-close{padding:5px 10px;font-size:10px;letter-spacing:.16em}
+  .modal-body{padding:20px 18px;flex:1;max-height:none}
+  .modal-title{font-size:36px !important;letter-spacing:-.02em}
+  .modal-subtitle{font-size:12px;letter-spacing:.04em;padding-bottom:12px;margin-bottom:14px}
+  .modal-section{margin:16px 0}
+  .modal-section h4{font-size:10px;letter-spacing:.18em;margin-bottom:8px}
+  .modal-section p{font-size:13px;line-height:1.75}
+  .modal-section ul li{font-size:12px;padding:6px 0 6px 18px}
+  .modal-foot{padding:12px 16px;font-size:9px;letter-spacing:.16em}
+  .modal-gallery{columns:2;column-gap:6px;margin-top:10px}
+  .modal-gallery .ph{margin-bottom:6px}
+
+  /* lightbox 移动端：按钮移到底部 */
+  .lb-mask{padding:14px}
+  .lb-nav{width:46px;height:46px;font-size:26px;top:auto;bottom:18px;transform:none}
+  .lb-prev{left:14px}
+  .lb-next{right:14px}
+  .lb-close{top:14px;right:14px;font-size:10px;padding:6px 10px}
+  .lb-caption{position:fixed;top:18px;left:14px;right:74px;transform:none;justify-content:flex-start;font-size:10px;letter-spacing:.14em;padding:6px 10px;max-width:none;text-align:left}
+  .lb-stage img{max-height:calc(100vh - 130px)}
+
+  /* slide-nav 已在 720 关掉，再保险 */
+  .slide-nav{display:none}
+}
+
+/* 超小屏 ≤ 380 */
+@media(max-width:380px){
+  .hero-title{font-size:48px !important}
+  .invite h2{font-size:40px !important}
+  .modal-title{font-size:28px !important}
+  .fp-card-grid{grid-template-columns:repeat(2,1fr)}
+  .inv-grid{grid-template-columns:repeat(2,1fr)}
 }
 </style>
 </head>
@@ -1451,6 +1600,25 @@ lbMask.addEventListener('click',(ev)=>{
   // 点击图片本身不关闭，点遮罩或舞台空白关闭
   if(ev.target===lbMask||ev.target.classList.contains('lb-stage')) closeLightbox();
 });
+
+/* lightbox 触摸滑动（移动端） */
+(function lbSwipe(){
+  let sx=0,sy=0,dx=0,dy=0,active=false;
+  lbMask.addEventListener('touchstart',(e)=>{
+    if(e.touches.length!==1) return;
+    sx=e.touches[0].clientX;sy=e.touches[0].clientY;dx=0;dy=0;active=true;
+  },{passive:true});
+  lbMask.addEventListener('touchmove',(e)=>{
+    if(!active||e.touches.length!==1) return;
+    dx=e.touches[0].clientX-sx;dy=e.touches[0].clientY-sy;
+  },{passive:true});
+  lbMask.addEventListener('touchend',()=>{
+    if(!active) return;active=false;
+    const ax=Math.abs(dx),ay=Math.abs(dy);
+    if(ax>50&&ax>ay*1.5){lbStep(dx<0?1:-1);}
+    else if(dy<-80&&ay>ax){closeLightbox();} // 上滑关闭
+  });
+})();
 
 /* 全局键盘：lightbox 优先 */
 document.addEventListener('keydown',(ev)=>{
