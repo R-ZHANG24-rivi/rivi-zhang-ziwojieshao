@@ -249,20 +249,39 @@ section.in{opacity:1;transform:translateY(0)}
 .stat-row.yellow .stat-bar i{background:var(--yellow)}
 .stat-row.yellow .lbl .val{color:var(--ink);background:var(--yellow);padding:1px 8px}
 
-.skilltree{padding:24px;margin-top:22px}
-.tree-wrap{position:relative;width:100%;overflow-x:auto}
-.tree-svg-box{position:relative;min-width:780px;height:260px}
-.tree-svg-box svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.node{position:absolute;transform:translate(-50%,-50%);width:130px;text-align:center;cursor:default}
-.node .dot{width:20px;height:20px;background:#fff;border:2px solid var(--ink);margin:0 auto 10px;transition:all .25s;border-radius:50%}
-.node:hover .dot{background:var(--pink);border-color:var(--pink);box-shadow:0 0 14px rgba(255,43,180,.5)}
-.node .label{font-size:11px;letter-spacing:.05em;color:var(--ink);margin-bottom:3px;font-weight:800}
-.node .stars{font-size:9px;color:var(--green);letter-spacing:.1em;font-weight:700}
-.node.root .dot{border-color:var(--pink);background:var(--pink);width:24px;height:24px}
-.node.root .label{color:var(--pink)}
-.node.secret .dot{border-color:var(--yellow);background:var(--yellow)}
-.node.secret .label{color:var(--ink)}
-.node.secret .stars{color:var(--pink)}
+/* ===== Footprints 我的足迹 ===== */
+.footprint-wrap{padding:26px}
+.footprint-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+.footprint-stats{display:flex;gap:8px;flex-wrap:wrap}
+.fp-pill{font-size:10px;letter-spacing:.18em;color:var(--ink);background:#fff;border:1.5px solid var(--ink);padding:5px 12px;border-radius:999px;font-weight:700}
+.fp-pill b{color:var(--pink);font-weight:900;margin-right:4px}
+.fp-pill.green{background:var(--green-soft)}
+.fp-pill.green b{color:var(--green)}
+.cn-map-box{position:relative;width:100%;background:var(--green-soft);border:1.5px solid var(--ink);border-radius:14px;padding:16px;overflow:hidden}
+.cn-map-box::before,.cn-map-box::after{content:"";position:absolute;width:14px;height:14px;background:var(--pink);border-radius:50%;z-index:2}
+.cn-map-box::before{top:-7px;left:-7px}
+.cn-map-box::after{bottom:-7px;right:-7px;background:var(--green)}
+#cnMap{display:block;width:100%;height:auto}
+#cnMap path{fill:#fff;stroke:var(--ink);stroke-width:1.2;transition:fill .25s,transform .25s;cursor:default;transform-origin:center;transform-box:fill-box}
+#cnMap path.visited{fill:var(--pink)}
+#cnMap path:hover{fill:var(--yellow);stroke-width:2}
+#cnMap path.visited:hover{fill:var(--green)}
+.cn-tooltip{position:absolute;display:none;background:var(--ink);color:#fff;font-size:11px;letter-spacing:.15em;padding:5px 10px;border-radius:6px;pointer-events:none;z-index:5;font-weight:700;white-space:nowrap;transform:translate(-50%,-130%)}
+.cn-tooltip.show{display:block}
+.fp-legend{display:flex;gap:18px;margin-top:14px;font-size:11px;color:var(--ink-2);letter-spacing:.15em;font-weight:700}
+.leg-item{display:inline-flex;align-items:center;gap:6px}
+.leg-dot{width:14px;height:14px;background:#fff;border:1.5px solid var(--ink);border-radius:4px}
+.leg-dot.visited{background:var(--pink);border-color:var(--pink)}
+.fp-abroad{margin-top:24px;padding-top:18px;border-top:1.5px dashed rgba(14,43,26,.2)}
+.abroad-chips{display:flex;gap:14px;flex-wrap:wrap}
+.abroad-chip{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--ink);padding:10px 16px;border-radius:14px;font-size:11px;letter-spacing:.18em;color:var(--ink);font-weight:800;position:relative;transition:all .25s}
+.abroad-chip:hover{background:var(--yellow);transform:translateY(-2px);box-shadow:3px 3px 0 var(--pink)}
+.abroad-chip .flag{font-size:22px}
+.abroad-chip b{color:var(--pink);font-weight:900}
+.abroad-chip small{color:var(--ink-3);font-size:9px;letter-spacing:.1em;font-weight:700}
+.fp-list{margin-top:22px;padding-top:18px;border-top:1.5px dashed rgba(14,43,26,.2)}
+.fp-tags{display:flex;flex-wrap:wrap;gap:6px}
+.fp-tag{font-size:11px;color:var(--ink);background:var(--green-soft);border:1.5px solid var(--green);padding:5px 12px;border-radius:999px;letter-spacing:.1em;font-weight:700}
 
 /* ===== Inventory ===== */
 .inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
@@ -609,33 +628,54 @@ section.in{opacity:1;transform:translateY(0)}
         <div class="stat-row yellow" data-val="96"><div class="lbl"><span class="name">好奇心 Curiosity</span><span class="val">96</span></div><div class="stat-bar"><i></i></div></div>
       </div>
     </div>
+  </section>
 
-    <!-- 技能树（节点连线） -->
-    <div class="panel skilltree hoverable">
-      <h5 style="font-size:11px;color:var(--text-dim);letter-spacing:.25em;margin-bottom:18px;">// SKILL_TREE · 技能树</h5>
-      <div class="tree-wrap">
-        <div class="tree-svg-box" id="treeBox">
-          <svg id="treeSvg" preserveAspectRatio="none"></svg>
-          <!-- 节点：data-from 用于连线 -->
-          <div class="node root" data-id="root" style="left:7%;top:50%;"><div class="dot"></div><div class="label">RIVI.CORE</div><div class="stars">// 主节点</div></div>
-          <div class="node" data-id="visual" data-from="root" style="left:32%;top:18%;"><div class="dot"></div><div class="label">视觉设计系</div><div class="stars">★★★★☆</div></div>
-          <div class="node" data-id="ux" data-from="root" style="left:32%;top:50%;"><div class="dot"></div><div class="label">交互体验系</div><div class="stars">★★★★☆</div></div>
-          <div class="node" data-id="ai" data-from="root" style="left:32%;top:82%;"><div class="dot"></div><div class="label">AI 共创系</div><div class="stars">★★★★☆</div></div>
-          <div class="node" data-id="motion" data-from="visual" style="left:60%;top:18%;"><div class="dot"></div><div class="label">动效 / 品牌</div><div class="stars">★★★☆☆</div></div>
-          <div class="node" data-id="vibe" data-from="ux" style="left:60%;top:50%;"><div class="dot"></div><div class="label">Vibe Coding</div><div class="stars">★★★☆☆ 升级中</div></div>
-          <div class="node" data-id="prompt" data-from="ai" style="left:60%;top:82%;"><div class="dot"></div><div class="label">Prompt 工程</div><div class="stars">★★★★☆</div></div>
-          <div class="node" data-id="proto" data-from="motion" style="left:88%;top:18%;"><div class="dot"></div><div class="label">原型 / 体验优化</div><div class="stars">★★★★☆</div></div>
-          <div class="node" data-id="html" data-from="vibe" style="left:88%;top:50%;"><div class="dot"></div><div class="label">HTML 小网页</div><div class="stars">★★★☆☆</div></div>
-          <div class="node secret" data-id="secret" data-from="prompt" style="left:88%;top:82%;"><div class="dot"></div><div class="label">隐藏：唱歌/算卦</div><div class="stars">SECRET ★★★</div></div>
+  <!-- ===== 06 FOOTPRINTS ===== -->
+  <section id="mod-06">
+    <div class="mod-head">
+      <span class="mod-num">06</span><span class="mod-led yellow"></span>
+      <span class="mod-title-en">Footprints</span>
+      <span class="mod-title-cn">我的足迹</span>
+      <span class="mod-meta">// EXPLORED.MAP_v1.0</span>
+    </div>
+    <div class="panel hoverable footprint-wrap">
+      <div class="footprint-head">
+        <h5 style="font-size:11px;color:var(--ink-2);letter-spacing:.25em;font-weight:800;">// MAP.CN — 国内省份点亮</h5>
+        <div class="footprint-stats">
+          <span class="fp-pill"><b id="fpCnCount">17</b> / 34 省级行政区</span>
+          <span class="fp-pill green"><b>2</b> 个国外目的地</span>
         </div>
+      </div>
+      <!-- 中国地图（简化 SVG，含所有省级行政区） -->
+      <div class="cn-map-box">
+        <svg id="cnMap" viewBox="0 0 1000 760" preserveAspectRatio="xMidYMid meet" aria-label="中国足迹地图"></svg>
+        <div class="cn-tooltip" id="cnTip">省份名</div>
+      </div>
+      <!-- 图例 -->
+      <div class="fp-legend">
+        <span class="leg-item"><span class="leg-dot visited"></span>已点亮</span>
+        <span class="leg-item"><span class="leg-dot"></span>尚未到达</span>
+      </div>
+      <!-- 国外地区 -->
+      <div class="fp-abroad">
+        <h5 style="font-size:11px;color:var(--ink-2);letter-spacing:.25em;font-weight:800;margin-bottom:12px;">// MAP.GLOBAL — 国外足迹</h5>
+        <div class="abroad-chips">
+          <span class="abroad-chip"><span class="flag">🇫🇷</span><b>FRANCE</b><small>法国</small></span>
+          <span class="abroad-chip"><span class="flag">🇵🇭</span><b>PHILIPPINES</b><small>菲律宾</small></span>
+        </div>
+      </div>
+      <!-- 已点亮省份列表 -->
+      <div class="fp-list">
+        <h5 style="font-size:11px;color:var(--ink-2);letter-spacing:.25em;font-weight:800;margin-bottom:10px;">// VISITED.LIST</h5>
+        <div class="fp-tags" id="fpTags"></div>
       </div>
     </div>
   </section>
 
-  <!-- ===== 06 INVENTORY ===== -->
-  <section id="mod-06">
+  <!-- ===== 07 INVENTORY ===== -->
+  <section id="mod-07">
     <div class="mod-head">
-      <span class="mod-num">06</span><span class="mod-led pink"></span>
+      <span class="mod-num">07</span><span class="mod-led pink"></span>
       <span class="mod-title-en">Inventory</span>
       <span class="mod-title-cn">背包与兴趣爱好</span>
       <button class="mod-detail-btn" data-modal="inventory">VIEW DETAIL ▶</button>
@@ -667,10 +707,10 @@ section.in{opacity:1;transform:translateY(0)}
     </div>
   </section>
 
-  <!-- ===== 07 TEAM INVITE ===== -->
-  <section id="mod-07">
+  <!-- ===== 08 TEAM INVITE ===== -->
+  <section id="mod-08">
     <div class="mod-head">
-      <span class="mod-num">07</span><span class="mod-led"></span>
+      <span class="mod-num">08</span><span class="mod-led"></span>
       <span class="mod-title-en">Team Invite</span>
       <span class="mod-title-cn">组队邀请</span>
       <span class="mod-meta">// MISSION_BROADCAST</span>
@@ -868,36 +908,100 @@ if(radarCanvas){
   });
 }
 
-/* 5) 技能树连线 */
-function drawTreeLines(){
-  const box=document.getElementById('treeBox');
-  const svg=document.getElementById('treeSvg');
-  if(!box||!svg) return;
-  const rect=box.getBoundingClientRect();
-  svg.setAttribute('viewBox',`0 0 ${rect.width} ${rect.height}`);
-  svg.innerHTML='';
-  const nodes={};
-  box.querySelectorAll('.node').forEach(n=>{
-    const left=parseFloat(n.style.left)/100*rect.width;
-    const top=parseFloat(n.style.top)/100*rect.height;
-    nodes[n.dataset.id]={x:left,y:top};
+/* 5) 我的足迹 · 中国地图（像素方块网格，地理位置近似排列） */
+(function initFootprints(){
+  const svg=document.getElementById('cnMap');
+  const tip=document.getElementById('cnTip');
+  const tagsBox=document.getElementById('fpTags');
+  const cntEl=document.getElementById('fpCnCount');
+  if(!svg) return;
+
+  // 已点亮省份（id 与 PROVINCES 中对应）
+  const VISITED=new Set(['fj','js','bj','tj','gd','sh','hn','gz','sc','cq','zj','nm','hl','sd','qh','gs','xj']);
+
+  // 省级行政区数据：id, 简称, 全称, 网格列row(0-12), 行col(0-15)。坐标按地理大致排列
+  // 网格：row 0=北， col 0=西
+  const PROVINCES=[
+    // 西北
+    {id:'xj',sn:'新疆',name:'新疆维吾尔自治区',c:1,r:3},
+    {id:'qh',sn:'青海',name:'青海省',c:4,r:5},
+    {id:'gs',sn:'甘肃',name:'甘肃省',c:5,r:4},
+    {id:'nx',sn:'宁夏',name:'宁夏回族自治区',c:6,r:4},
+    // 北方
+    {id:'nm',sn:'内蒙古',name:'内蒙古自治区',c:6,r:1},
+    {id:'hl',sn:'黑龙江',name:'黑龙江省',c:11,r:0},
+    {id:'jl',sn:'吉林',name:'吉林省',c:11,r:1},
+    {id:'ln',sn:'辽宁',name:'辽宁省',c:10,r:2},
+    {id:'bj',sn:'北京',name:'北京市',c:9,r:2},
+    {id:'tj',sn:'天津',name:'天津市',c:10,r:3},
+    {id:'he',sn:'河北',name:'河北省',c:9,r:3},
+    {id:'sx',sn:'山西',name:'山西省',c:8,r:3},
+    {id:'sn',sn:'陕西',name:'陕西省',c:7,r:4},
+    {id:'sd',sn:'山东',name:'山东省',c:10,r:4},
+    {id:'ha',sn:'河南',name:'河南省',c:8,r:5},
+    // 西南
+    {id:'xz',sn:'西藏',name:'西藏自治区',c:2,r:6},
+    {id:'sc',sn:'四川',name:'四川省',c:5,r:6},
+    {id:'cq',sn:'重庆',name:'重庆市',c:6,r:6},
+    {id:'gz',sn:'贵州',name:'贵州省',c:6,r:8},
+    {id:'yn',sn:'云南',name:'云南省',c:4,r:8},
+    // 中部
+    {id:'hb',sn:'湖北',name:'湖北省',c:7,r:6},
+    {id:'hn',sn:'湖南',name:'湖南省',c:7,r:8},
+    {id:'jx',sn:'江西',name:'江西省',c:9,r:8},
+    {id:'ah',sn:'安徽',name:'安徽省',c:9,r:6},
+    // 华东
+    {id:'js',sn:'江苏',name:'江苏省',c:10,r:5},
+    {id:'sh',sn:'上海',name:'上海市',c:11,r:6},
+    {id:'zj',sn:'浙江',name:'浙江省',c:10,r:7},
+    {id:'fj',sn:'福建',name:'福建省',c:10,r:9},
+    // 华南
+    {id:'gd',sn:'广东',name:'广东省',c:9,r:10},
+    {id:'gx',sn:'广西',name:'广西壮族自治区',c:7,r:9},
+    {id:'hi',sn:'海南',name:'海南省',c:8,r:11},
+    // 港澳台
+    {id:'hk',sn:'香港',name:'香港特别行政区',c:10,r:11},
+    {id:'mo',sn:'澳门',name:'澳门特别行政区',c:9,r:11},
+    {id:'tw',sn:'台湾',name:'台湾省',c:12,r:10}
+  ];
+
+  // 渲染网格方块（每格 65×65，间距 4）
+  const CELL=62, GAP=6, OX=40, OY=40;
+  const VW=1000, VH=760;
+  let html='';
+  PROVINCES.forEach(p=>{
+    const x=OX+p.c*(CELL+GAP);
+    const y=OY+p.r*(CELL+GAP);
+    const cls=VISITED.has(p.id)?'visited':'';
+    html+=`<g class="prov-g" data-id="${p.id}" data-name="${p.name}">`+
+      `<path class="${cls}" d="M ${x} ${y} h ${CELL} v ${CELL} h -${CELL} z" rx="8"/>`+
+      `<text x="${x+CELL/2}" y="${y+CELL/2+5}" text-anchor="middle" font-size="18" font-weight="800" fill="${VISITED.has(p.id)?'#fff':'#0e2b1a'}" style="pointer-events:none;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;letter-spacing:.05em">${p.sn}</text>`+
+      `</g>`;
   });
-  box.querySelectorAll('.node[data-from]').forEach(n=>{
-    const from=nodes[n.dataset.from],to=nodes[n.dataset.id];
-    if(!from||!to) return;
-    // 折线
-    const midX=(from.x+to.x)/2;
-    const path=`M ${from.x} ${from.y} L ${midX} ${from.y} L ${midX} ${to.y} L ${to.x} ${to.y}`;
-    const el=document.createElementNS('http://www.w3.org/2000/svg','path');
-    el.setAttribute('d',path);
-    el.setAttribute('fill','none');
-    el.setAttribute('stroke','#ff2bb4');
-    el.setAttribute('stroke-width','1.5');
-    el.setAttribute('stroke-dasharray','4,4');
-    svg.appendChild(el);
+  // 装饰：地图框 + 北箭头 + 标题
+  html+=`<rect x="20" y="20" width="${VW-40}" height="${VH-100}" fill="none" stroke="#0e2b1a" stroke-width="2" stroke-dasharray="6,4" rx="14"/>`;
+  html+=`<g transform="translate(${VW-100},90)"><circle r="26" fill="#fff" stroke="#0e2b1a" stroke-width="1.5"/><path d="M 0 -16 L 8 12 L 0 5 L -8 12 Z" fill="#ff2bb4"/><text y="32" text-anchor="middle" font-size="11" font-weight="800" fill="#0e2b1a" letter-spacing="0.2em">N</text></g>`;
+  html+=`<text x="40" y="${VH-40}" font-size="12" font-weight="700" fill="#5a7260" letter-spacing="0.2em">// MAP.CN · ROUGH GRID · NOT TO SCALE</text>`;
+  html+=`<text x="${VW-40}" y="${VH-40}" text-anchor="end" font-size="12" font-weight="800" fill="#ff2bb4" letter-spacing="0.2em">RIVI.FOOTPRINT_v1.0</text>`;
+  svg.innerHTML=html;
+
+  // 交互：tooltip
+  svg.querySelectorAll('.prov-g').forEach(g=>{
+    g.addEventListener('mousemove',(e)=>{
+      const box=svg.getBoundingClientRect();
+      tip.textContent=g.dataset.name;
+      tip.style.left=(e.clientX-box.left)+'px';
+      tip.style.top=(e.clientY-box.top)+'px';
+      tip.classList.add('show');
+    });
+    g.addEventListener('mouseleave',()=>tip.classList.remove('show'));
   });
-}
-window.addEventListener('load',drawTreeLines);
+
+  // 已点亮省份 tag 列表
+  const visitedList=PROVINCES.filter(p=>VISITED.has(p.id));
+  if(tagsBox) tagsBox.innerHTML=visitedList.map(p=>`<span class="fp-tag">${p.sn}</span>`).join('');
+  if(cntEl) cntEl.textContent=visitedList.length;
+})();
 
 /* 6) resize 重绘 */
 let resizeTimer;
@@ -905,7 +1009,6 @@ window.addEventListener('resize',()=>{
   clearTimeout(resizeTimer);
   resizeTimer=setTimeout(()=>{
     if(radarStarted) drawRadar(1);
-    drawTreeLines();
   },120);
 });
 

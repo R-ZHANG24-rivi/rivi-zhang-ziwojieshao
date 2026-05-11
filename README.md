@@ -40,9 +40,10 @@ python3 -m http.server 8000
 3. **02 Learning Path** – 成长路线（江大 → 清美）
 4. **03 Previous Maps** – 已探索地图（字节 / 阿里）
 5. **04 Project Gallery** – 作品简介 + 早期插画存档
-6. **05 Status Panel** – 技能雷达图 + 技能树
-7. **06 Inventory** – 背包与兴趣爱好
-8. **07 Team Invite** – 组队邀请
+6. **05 Status Panel** – 技能雷达图
+7. **06 Footprints** – 我的足迹（中国地图 + 国外标签）
+8. **07 Inventory** – 背包与兴趣爱好
+9. **08 Team Invite** – 组队邀请
 
 每个板块卡片可 **点击进入详情弹层**，详情中展示完整图集。
 
